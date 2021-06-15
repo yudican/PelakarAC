@@ -13,6 +13,8 @@ import KelolaJasa from '../../Pages/KelolaJasa';
 import TambahJasa from '../../Pages/TambahJasa';
 import Beranda from '../../Pages/Beranda';
 import ListJasaTerdekat from '../../Pages/ListJasaTerdekat';
+import ChatDetail from '../../Pages/ChatDetail';
+import TokoDeatil from '../../Pages/TokoDetail';
 
 const Stack = createStackNavigator();
 const Tab = createMaterialBottomTabNavigator();
@@ -42,6 +44,16 @@ const AppStack = () => {
       <Stack.Screen
         name="ListJasaTerdekat"
         component={ListJasaTerdekat}
+        options={{header: () => null}}
+      />
+      <Stack.Screen
+        name="ChatDetail"
+        component={ChatDetail}
+        options={{header: () => null}}
+      />
+      <Stack.Screen
+        name="TokoDeatil"
+        component={TokoDeatil}
         options={{header: () => null}}
       />
     </Stack.Navigator>

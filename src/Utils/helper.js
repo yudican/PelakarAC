@@ -1,5 +1,6 @@
 export const unique = (arr, index) => {
-  const unique = arr
+  const array = arr.sort((a, b) => getDate(b.createdAt) - getDate(a.createdAt));
+  const unique = array
     .map((e) => e[index])
 
     // store the keys of the unique objects
@@ -10,4 +11,15 @@ export const unique = (arr, index) => {
     .map((e) => arr[e]);
 
   return unique;
+};
+
+export const getDate = (date) => {
+  return new Date(date).getTime();
+};
+
+export const chatTime = (time) => {
+  let date = new Date(time);
+  const timeChat = `${date.getHours()}:${date.getMinutes()}`;
+
+  return timeChat;
 };

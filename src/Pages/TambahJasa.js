@@ -30,7 +30,7 @@ export default class TambahJasa extends Component {
     const data = {
       namaJasa,
       hargaJasa,
-      uid_penyedia_jasa: uid,
+      uid_Pelanggan: uid,
     };
 
     await tambahJasa(data, this.props.navigation);

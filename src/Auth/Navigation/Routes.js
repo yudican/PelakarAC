@@ -13,6 +13,7 @@ const Routes = (props) => {
   const [status, setStatus] = useState(null); // accountStatus = suspend || active || pending
 
   const onAuthStateChanged = (user) => {
+    console.log(user);
     setUser(user);
     if (initializing) setInitializing(false);
   };

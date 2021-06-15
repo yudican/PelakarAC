@@ -80,7 +80,7 @@ export default class UbahProfil extends Component {
   handleGetProfile = async () => {
     const {uid} = this.context.auth.user;
     await this.firebaseRef
-      .ref('Pengguna/Penyedia_Jasa/' + this.context.auth.user.uid)
+      .ref('Pengguna/Pelanggan/' + this.context.auth.user.uid)
       .on('value', (snapshot) => {
         const {
           nama,

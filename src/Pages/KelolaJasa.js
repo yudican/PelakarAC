@@ -40,7 +40,7 @@ export default class KelolaJasa extends Component {
   handleGetProfile = async () => {
     const {uid} = this.context.auth.user;
     await this.firebaseRef
-      .ref('Pengguna/Penyedia_Jasa/' + uid)
+      .ref('Pengguna/Pelanggan/' + uid)
       .on('value', (snapshot) => {
         const {spanduk} = snapshot.val();
         this.setState({

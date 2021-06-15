@@ -14,7 +14,7 @@ export const AppProvider = ({children}) => {
           try {
             await db.app
               .database()
-              .ref('Pengguna/Penyedia_Jasa/' + userUid)
+              .ref('Pengguna/Pelanggan/' + userUid)
               .update(data)
               .then((data) => {
                 ToastAndroid.showWithGravityAndOffset(
@@ -34,7 +34,7 @@ export const AppProvider = ({children}) => {
           try {
             await db.app
               .database()
-              .ref('Pengguna/Penyedia_Jasa/' + userUid)
+              .ref('Pengguna/Pelanggan/' + userUid)
               .update(data)
               .then((data) => {
                 ToastAndroid.showWithGravityAndOffset(
@@ -69,6 +69,56 @@ export const AppProvider = ({children}) => {
             Alert.alert('Error', 'Terjadi Kesalahan');
           }
         },
+        addToCart: async (data, uid) => {
+          try {
+            await db.app
+              .database()
+              .ref(`Pengguna/Pelanggan/${uid}/Keranjang/${uuid.v4()}`)
+              .set(data)
+              .then((data) => {
+                ToastAndroid.showWithGravityAndOffset(
+                  'Jasa Berhasil Ditambah Keranjang',
+                  ToastAndroid.LONG,
+                  ToastAndroid.BOTTOM,
+                  25,
+                  50,
+                );
+              });
+          } catch (e) {
+            ToastAndroid.showWithGravityAndOffset(
+              'Terjadi Kesalahan',
+              ToastAndroid.LONG,
+              ToastAndroid.BOTTOM,
+              25,
+              50,
+            );
+          }
+        },
+        addToFavorite: async (data, uid) => {
+          try {
+            await db.app
+              .database()
+              .ref(`Pengguna/Pelanggan/${uid}/Favorite/${uuid.v4()}`)
+              .set(data)
+              .then((data) => {
+                ToastAndroid.showWithGravityAndOffset(
+                  'Jasa Berhasil Ditambah Favorite',
+                  ToastAndroid.LONG,
+                  ToastAndroid.BOTTOM,
+                  25,
+                  50,
+                );
+              });
+          } catch (e) {
+            ToastAndroid.showWithGravityAndOffset(
+              'Terjadi Kesalahan',
+              ToastAndroid.LONG,
+              ToastAndroid.BOTTOM,
+              25,
+              50,
+            );
+          }
+        },
         uploadImage: async (uri, fileName, path) => {
           const imageRef = storage().ref(`${path}/${fileName}`);
           await imageRef
@@ -85,18 +135,25 @@ export const AppProvider = ({children}) => {
 
           return url;
         },
-
-        getPerusahaan : async () => {         
-          db.ref('/pengguna/penyedia_jasa').on('value', querySnapShot => {
+        sendChat: async (messages, uid) => {
+          await db.app
+            .database()
+            .ref(`Pengguna/Chat/${uid}/${uuid.v4()}`)
+            .set(messages)
+            .then((data) => {
+              console.log(data);
+            });
+        },
+        getPerusahaan: async () => {
+          db.ref('/pengguna/Pelanggan').on('value', (querySnapShot) => {
             let data = querySnapShot.val() ? querySnapShot.val() : {};
             let jasa = {...data};
             this.setState({
-              jasa
+              jasa,
             });
-            console.log(jasa)
+            console.log(jasa);
           });
-        }
-
+        },
       }}>
       {children}
     </AppContext.Provider>

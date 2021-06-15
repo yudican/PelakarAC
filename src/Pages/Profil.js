@@ -13,6 +13,7 @@ import {RootContext} from '../Auth/Navigation/Context';
 
 export default class Profil extends Component {
   static contextType = RootContext;
+  firebaseRef = database();
   constructor(props) {
     super(props);
 
@@ -28,11 +29,13 @@ export default class Profil extends Component {
     this.handleGetProfile();
   }
 
-  handleGetProfile = async () => {
+  handleGetProfile = () => {
     const {uid} = this.context.auth.user;
-    await this.firebaseRef
+    console.log('uid', uid);
+    this.firebaseRef
       .ref('Pengguna/Pelanggan/' + uid)
       .on('value', (snapshot) => {
+        console.log(snapshot.val());
         const {nama, no_telp, profile_photo, alamat} = snapshot.val() || {};
         this.setState({
           no_telp,
@@ -115,29 +118,10 @@ export default class Profil extends Component {
                 </Text>
               </View>
             </Card>
-
-            {/* <Card containerStyle={{width:'95%',borderRadius:10}}>
-                        <ListItem>
-                                <ListItem.Content>
-                                    <ListItem.Title>Alamat : </ListItem.Title>
-                                    <View style={styles.subtitleView}>
-                                        <Text style={styles.ratingText}>Jl.Teuku Umar No 73, Medan, Sumatera Utara</Text>
-                                    </View>
-                                </ListItem.Content>
-                        </ListItem>
-                        <Card.Divider/>
-                        <ListItem>
-                                <ListItem.Content>
-                                    <ListItem.Title>No Telp : </ListItem.Title>
-                                    <View style={styles.subtitleView}>
-                                        <Text style={styles.ratingText}>087770178512</Text>
-                                    </View>
-                                </ListItem.Content>
-                        </ListItem>
-                    </Card> */}
             <Card
               containerStyle={{
                 width: '95%',
+                marginBottom: '10%',
                 borderRadius: 10,
                 shadowColor: '#000',
                 elevation: 7,
@@ -158,31 +142,23 @@ export default class Profil extends Component {
               <TouchableOpacity
                 onPress={() => navigation.navigate('KelolaJasa')}>
                 <ListItem bottomDivider>
-                  <Icon name="page-edit" type="foundation" color="#b434eb" />
+                  <Icon name="heart" type="foundation" color="red" />
                   <ListItem.Content>
-                    <ListItem.Title>Kelola Jasa</ListItem.Title>
+                    <ListItem.Title>Favorite</ListItem.Title>
                   </ListItem.Content>
                   <ListItem.Chevron />
                 </ListItem>
               </TouchableOpacity>
               <TouchableOpacity>
                 <ListItem bottomDivider>
-                  <Icon name="money-symbol" type="fontisto" color="orange" />
+                  <Icon name="cart" type="fontisto" color="orange" />
                   <ListItem.Content>
-                    <ListItem.Title>Laporan Keuangan</ListItem.Title>
+                    <ListItem.Title>Keranjang</ListItem.Title>
                   </ListItem.Content>
                   <ListItem.Chevron />
                 </ListItem>
               </TouchableOpacity>
-              <TouchableOpacity>
-                <ListItem bottomDivider>
-                  <Icon name="money" type="font-awesome" color="#ff6200" />
-                  <ListItem.Content>
-                    <ListItem.Title>Pembayaran Admin</ListItem.Title>
-                  </ListItem.Content>
-                  <ListItem.Chevron />
-                </ListItem>
-              </TouchableOpacity>
+
               <TouchableOpacity>
                 <ListItem>
                   <Icon name="logout" type="antdesign" color="red" />
@@ -202,6 +178,7 @@ export default class Profil extends Component {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     alignItems: 'center',
   },
   cardContainer: {

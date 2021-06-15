@@ -100,7 +100,7 @@ export default SignupScreen;
 //       // }
 //       db.app.auth().createUserWithEmailAndPassword(this.state.email,this.state.password)
 //             .then((res)=>{
-//                 db.app.database().ref('Pengguna/Penyedia_Jasa/' + res.user.uid).set({
+//                 db.app.database().ref('Pengguna/Pelanggan/' + res.user.uid).set({
 //                   email : this.state.email
 //                 })
 //                 // .push(PenyediaJasa)
