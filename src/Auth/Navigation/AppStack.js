@@ -12,6 +12,7 @@ import UbahProfil from '../../Pages/UbahProfil';
 import KelolaJasa from '../../Pages/KelolaJasa';
 import TambahJasa from '../../Pages/TambahJasa';
 import Beranda from '../../Pages/Beranda';
+import ListJasaTerdekat from '../../Pages/ListJasaTerdekat';
 
 const Stack = createStackNavigator();
 const Tab = createMaterialBottomTabNavigator();
@@ -36,6 +37,11 @@ const AppStack = () => {
       <Stack.Screen
         name="TambahJasa"
         component={TambahJasa}
+        options={{header: () => null}}
+      />
+      <Stack.Screen
+        name="ListJasaTerdekat"
+        component={ListJasaTerdekat}
         options={{header: () => null}}
       />
     </Stack.Navigator>

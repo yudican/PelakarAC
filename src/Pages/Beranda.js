@@ -52,7 +52,7 @@ export default class Beranda extends Component {
           <View style={styles.categoryContainer}>
             <TouchableOpacity
               style={styles.categoryBtn}
-              onPress={() => console.log('Menu1')}>
+              onPress={() => this.props.navigation.navigate('ListJasaTerdekat')}>
               <Icon reverse name="location" type="evilicon" color="#EC5C3F" />
               <Text style={{textAlign: 'center'}}>Terdekat</Text>
             </TouchableOpacity>

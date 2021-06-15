@@ -12,7 +12,6 @@ import database from '@react-native-firebase/database';
 import {RootContext} from '../Auth/Navigation/Context';
 
 export default class Profil extends Component {
-  firebaseRef = database();
   static contextType = RootContext;
   constructor(props) {
     super(props);

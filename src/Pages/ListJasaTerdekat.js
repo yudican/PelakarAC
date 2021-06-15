@@ -3,18 +3,58 @@ import React, { Component } from 'react';
 import {View,TouchableOpacity,Image,ScrollView,Text,StyleSheet,TextInput,Button,ImageBackground,Dimensions} from 'react-native'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import {Header, ListItem, Avatar, Card, CheckBox,Icon,SearchBar} from 'react-native-elements'
-
+import { RootContext } from '../Auth/Navigation/Context';
+import database from '@react-native-firebase/database';
 
 export default class ListJasaTerdekat extends Component {
+static contextType = RootContext;
+firebaseRef = database();
+    
     constructor(props){
         super(props)
         this.state={
-            search:''
+            search:'',
+            jasa : []
         }
     }
+
+    componentDidMount() {
+    this.handleGetPenyediaJasa()
+  }
+
+  handleGetPenyediaJasa = async () => {
+    this.firebaseRef.ref('/Pengguna/Penyedia_Jasa').on('value', querySnapShot => {
+      let data = querySnapShot.val() ? querySnapShot.val() : {};
+      let jasa = {...data};
+      this.setState({
+        jasa,
+      });
+    });
+  };
+
+//   handleGetJasa = async (id_jasa) => {
+//     const data = []
+//     await this.firebaseRef
+//       .ref('Pengguna/Data_Jasa/'+id_jasa)
+//       .on('value', (snapshot) => {
+//         let jasa= Object.values(snapshot.val());
+//         data.push(jasa)        
+//       });
+
+//       return data
+//   };
+
     
     
   render() {
+
+    let jasaKey = Object.keys(this.state.jasa);
+
+    jasaKey.map((key) => {
+          
+        console.log(this.state.jasa[key].Data_Jasa)
+    })
+    
     return (
       <View style={{flex:1}}>
           <Header
@@ -39,75 +79,28 @@ export default class ListJasaTerdekat extends Component {
             <ImageBackground source={require('../Assets/Image/BerandaImage.png')} style={styles.header}>
                     {/* <Image source={Logo} style={styles.logo} /> */}
                 </ImageBackground>
-            <View style={styles.container}>
-            <Card containerStyle={styles.cardContainer}>
-                <View style={styles.labelTokoContainer}>
-                    <TouchableOpacity>
-                        <Text style={styles.labelToko}>Panama AC</Text>
-                        <Text style={{color:'rgba(0,0,0,0.4)'}}>Jl. Hang Tuah No.8, Medan</Text>
-                        <Text style={{color:'rgba(0,0,0,0.9)'}}>Jam Operasi : 10.00 - 20.00</Text>
-                    </TouchableOpacity>
-                </View>
-                <Card.Divider></Card.Divider>
-                <TouchableOpacity>
-                    <ListItem bottomDivider>
-                        <ListItem.Title> 
-                        </ListItem.Title>
-                        <ListItem.Content>
-                        <ListItem.Title style={{fontSize:14}}>Cuci AC</ListItem.Title>
-                        <ListItem.Subtitle style={{fontSize:12}}>Rp.75.000</ListItem.Subtitle>
-                        </ListItem.Content>
-                        <ListItem.Subtitle>
-                        <Icon
-                            raised
-                            name='shoppingcart'
-                            size={16}
-                            type='antdesign'
-                            color='#F18F37'
-                            onPress={() => console.log('This Is Shopping Cart')} />
-                        </ListItem.Subtitle>
-                    </ListItem> 
-                    </TouchableOpacity>
-                    <TouchableOpacity>
-                    <ListItem bottomDivider>
-                        <ListItem.Title>
-                        </ListItem.Title>
-                        <ListItem.Content>
-                        <ListItem.Title style={{fontSize:14}}>Ganti Freon AC 1 PK R32</ListItem.Title>
-                        <ListItem.Subtitle style={{fontSize:12}}>Rp.250.000</ListItem.Subtitle>
-                        </ListItem.Content>
-                        <ListItem.Subtitle>
-                            <Icon
-                            raised
-                            name='shoppingcart'
-                            size={16}
-                            type='antdesign'
-                            color='#F18F37'
-                            onPress={() => console.log('This Is Shopping Cart')} />
-                        </ListItem.Subtitle>
-                    </ListItem> 
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.button}>
-                        <Text style={styles.buttonText}>Lihat Toko</Text>
-                    </TouchableOpacity>
-                    
-            </Card>
 
-            <Card containerStyle={styles.cardContainer2}>
-                <View style={styles.labelTokoContainer}>
-                    <TouchableOpacity>
-                        <Text style={styles.labelToko}>Central AC</Text>
-                        <Text style={{color:'rgba(0,0,0,0.4)'}}>Jl. Hang Tuah No.8, Medan</Text>
-                        <Text style={{color:'rgba(0,0,0,0.9)'}}>Jam Operasi : 10.00 - 20.00</Text>
-                    </TouchableOpacity>
-                </View>
+            <View style={styles.container}>
+            {jasaKey.length > 0 ? (
+                jasaKey.map(key => (
+                    
+                   <Card containerStyle={styles.cardContainer}>
+                    <View style={styles.labelTokoContainer}>
+                        <TouchableOpacity>
+                            <Text style={styles.labelToko}>{this.state.jasa[key].nama}</Text>
+                            <Text style={{color:'rgba(0,0,0,0.4)'}}>{this.state.jasa[key].alamat}</Text>
+                            <Text style={{color:'rgba(0,0,0,0.9)'}}>Jam Operasi : 10.00 - 20.00</Text>
+                        </TouchableOpacity>
+                    </View>
                 <Card.Divider></Card.Divider>
-                <TouchableOpacity>
+                {Object.keys(this.state.jasa[key].Data_Jasa).length > 0 ? (
+                    Object.keys(this.state.jasa[key].Data_Jasa).map((dataKey) => (
+                    <TouchableOpacity>
                     <ListItem bottomDivider>
                         <ListItem.Title> 
                         </ListItem.Title>
                         <ListItem.Content>
-                        <ListItem.Title style={{fontSize:14}}>Cuci AC</ListItem.Title>
+                        <ListItem.Title style={{fontSize:14}}>{this.state.jasa[key].Data_Jasa[dataKey].namaJasa}</ListItem.Title>
                         <ListItem.Subtitle style={{fontSize:12}}>Rp.75.000</ListItem.Subtitle>
                         </ListItem.Content>
                         <ListItem.Subtitle>
@@ -120,83 +113,26 @@ export default class ListJasaTerdekat extends Component {
                             onPress={() => console.log('This Is Shopping Cart')} />
                         </ListItem.Subtitle>
                     </ListItem> 
-                    </TouchableOpacity>
-                    <TouchableOpacity>
-                    <ListItem bottomDivider>
-                        <ListItem.Title>
-                        </ListItem.Title>
-                        <ListItem.Content>
-                        <ListItem.Title style={{fontSize:14}}>Ganti Freon AC 1 PK R32</ListItem.Title>
-                        <ListItem.Subtitle style={{fontSize:12}}>Rp.250.000</ListItem.Subtitle>
-                        </ListItem.Content>
-                        <ListItem.Subtitle>
-                        <Icon
-                            raised
-                            name='shoppingcart'
-                            size={16}
-                            type='antdesign'
-                            color='#F18F37'
-                            onPress={() => console.log('This Is Shopping Cart')} />
-                        </ListItem.Subtitle>
-                    </ListItem> 
-                    </TouchableOpacity>
+                </TouchableOpacity>
+                )
+                )) : (
+                    <Text>Nothing</Text>
+                ) 
+                }
+                
+                    
                     <TouchableOpacity style={styles.button}>
                         <Text style={styles.buttonText}>Lihat Toko</Text>
                     </TouchableOpacity>
                     
-            </Card>
-            <Card containerStyle={styles.cardContainer2}>
-                <View style={styles.labelTokoContainer}>
-                    <TouchableOpacity>
-                        <Text style={styles.labelToko}>Central AC</Text>
-                        <Text style={{color:'rgba(0,0,0,0.4)'}}>Jl. Hang Tuah No.8, Medan</Text>
-                        <Text style={{color:'rgba(0,0,0,0.9)'}}>Jam Operasi : 10.00 - 20.00</Text>
-                    </TouchableOpacity>
-                </View>
-                <Card.Divider></Card.Divider>
-                <TouchableOpacity>
-                    <ListItem bottomDivider>
-                        <ListItem.Title> 
-                        </ListItem.Title>
-                        <ListItem.Content>
-                        <ListItem.Title style={{fontSize:14}}>Cuci AC</ListItem.Title>
-                        <ListItem.Subtitle style={{fontSize:12}}>Rp.75.000</ListItem.Subtitle>
-                        </ListItem.Content>
-                        <ListItem.Subtitle>
-                        <Icon
-                            raised
-                            name='shoppingcart'
-                            size={16}
-                            type='antdesign'
-                            color='#F18F37'
-                            onPress={() => console.log('This Is Shopping Cart')} />
-                        </ListItem.Subtitle>
-                    </ListItem> 
-                    </TouchableOpacity>
-                    <TouchableOpacity>
-                    <ListItem bottomDivider>
-                        <ListItem.Title>
-                        </ListItem.Title>
-                        <ListItem.Content>
-                        <ListItem.Title style={{fontSize:14}}>Ganti Freon AC 1 PK R32</ListItem.Title>
-                        <ListItem.Subtitle style={{fontSize:12}}>Rp.250.000</ListItem.Subtitle>
-                        </ListItem.Content>
-                        <ListItem.Subtitle>
-                            <Icon
-                            raised
-                            name='shoppingcart'
-                            size={16}
-                            type='antdesign'
-                            color='#F18F37'
-                            onPress={() => console.log('This Is Shopping Cart')} />
-                        </ListItem.Subtitle>
-                    </ListItem> 
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.button}>
-                        <Text style={styles.buttonText}>Lihat Toko</Text>
-                    </TouchableOpacity>
-                    
-            </Card>
+            </Card> 
+                ))
+            ) : (
+                <Text>noting</Text>
+            ) }
+            
+                
+            
             </View>
             </ScrollView>
       </View>

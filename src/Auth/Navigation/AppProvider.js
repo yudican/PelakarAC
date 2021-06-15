@@ -85,6 +85,18 @@ export const AppProvider = ({children}) => {
 
           return url;
         },
+
+        getPerusahaan : async () => {         
+          db.ref('/pengguna/penyedia_jasa').on('value', querySnapShot => {
+            let data = querySnapShot.val() ? querySnapShot.val() : {};
+            let jasa = {...data};
+            this.setState({
+              jasa
+            });
+            console.log(jasa)
+          });
+        }
+
       }}>
       {children}
     </AppContext.Provider>
