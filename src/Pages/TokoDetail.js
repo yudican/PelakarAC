@@ -70,13 +70,10 @@ export default class TokoDeatil extends Component {
     }
   }
 
-  handleAddToCart = (jasa_id) => {
+  handleAddToCart = (jasa, jasa_id) => {
     const {uid} = this.context.auth.user;
     const {addToCart} = this.context.app;
-    const data = {
-      uid_jasa: jasa_id,
-    };
-    addToCart(data, uid);
+    addToCart(jasa, jasa_id, uid);
   };
   handleAddToFavorite = (jasa_id) => {
     const {uid} = this.context.auth.user;
@@ -192,7 +189,9 @@ export default class TokoDeatil extends Component {
                           size={16}
                           type="antdesign"
                           color="#F18F37"
-                          onPress={() => this.handleAddToCart(dataKey)}
+                          onPress={() =>
+                            this.handleAddToCart(jasa[dataKey], dataKey)
+                          }
                         />
                       </ListItem.Subtitle>
                     </ListItem>
