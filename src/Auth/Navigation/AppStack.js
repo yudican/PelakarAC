@@ -16,6 +16,7 @@ import ListJasaTerdekat from '../../Pages/ListJasaTerdekat';
 import ChatDetail from '../../Pages/ChatDetail';
 import TokoDeatil from '../../Pages/TokoDetail';
 import Favorite from '../../Pages/Favorite';
+import Cart from '../../Pages/Cart';
 
 const Stack = createStackNavigator();
 const Tab = createMaterialBottomTabNavigator();
@@ -60,6 +61,11 @@ const AppStack = () => {
       <Stack.Screen
         name="Favorite"
         component={Favorite}
+        options={{header: () => null}}
+      />
+      <Stack.Screen
+        name="Keranjang"
+        component={Cart}
         options={{header: () => null}}
       />
     </Stack.Navigator>

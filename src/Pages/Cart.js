@@ -70,7 +70,7 @@ export default class Cart extends Component {
             centerComponent={{ text: 'Keranjang', style: { color: 'white',fontFamily:'arial',fontWeight:'bold',fontSize:17} }}
             backgroundColor='#5D89F7'
             leftComponent={
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
                     <Ionicons name="arrow-back" color="#fff" size={20}/>
                 </TouchableOpacity>
             }
