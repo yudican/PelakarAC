@@ -94,11 +94,11 @@ export const AppProvider = ({children}) => {
             );
           }
         },
-        addToFavorite: async (data, uid) => {
+        addToFavorite: async (data, penyedia_id, uid) => {
           try {
             await db.app
               .database()
-              .ref(`Pengguna/Pelanggan/${uid}/Favorite/${uuid.v4()}`)
+              .ref(`Pengguna/Pelanggan/${uid}/Favorite/${penyedia_id}`)
               .set(data)
               .then((data) => {
                 ToastAndroid.showWithGravityAndOffset(

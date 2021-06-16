@@ -78,13 +78,23 @@ export default class TokoDeatil extends Component {
     };
     addToCart(data, uid);
   };
-  handleAddToFavorite = (jasa_id) => {
+  handleAddToFavorite = async (penyedia_id) => {
     const {uid} = this.context.auth.user;
     const {addToFavorite} = this.context.app;
-    const data = {
-      uid_jasa: jasa_id,
-    };
-    addToFavorite(data, uid);
+
+    await this.firebaseRef
+      .ref('Pengguna/Penyedia_Jasa/' + penyedia_id)
+      .on('value', (snapshot) => {
+        const data = snapshot.val();
+        const newData = {
+          nama: data.nama,
+          alamat: data.alamat,
+          spanduk: data.spanduk,
+          no_telp: data.no_telp,
+          merk: data.merk,
+        };
+        addToFavorite(newData, penyedia_id, uid);
+      });
   };
   render() {
     const {data, jasa} = this.state;
