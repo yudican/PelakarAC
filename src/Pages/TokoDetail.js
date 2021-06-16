@@ -75,12 +75,11 @@ export default class TokoDeatil extends Component {
     const {addToCart} = this.context.app;
     addToCart(jasa, jasa_id, uid);
   };
-  handleAddToFavorite = async (penyedia_id) => {
+  handleAddToFavorite = async (penyedia) => {
     const {uid} = this.context.auth.user;
     const {addToFavorite} = this.context.app;
-
     await this.firebaseRef
-      .ref('Pengguna/Penyedia_Jasa/' + penyedia_id)
+      .ref('Pengguna/Penyedia_Jasa/' + penyedia)
       .on('value', (snapshot) => {
         const data = snapshot.val();
         const newData = {
@@ -90,7 +89,7 @@ export default class TokoDeatil extends Component {
           no_telp: data.no_telp,
           merk: data.merk,
         };
-        addToFavorite(newData, penyedia_id, uid);
+        addToFavorite(newData, penyedia, uid);
       });
   };
   render() {
