@@ -1,11 +1,10 @@
-import React, {Component} from 'react';
-import {View, TouchableOpacity, Image} from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import {Header, ListItem, Avatar} from 'react-native-elements';
-import {RootContext} from '../Auth/Navigation/Context';
 import database from '@react-native-firebase/database';
-import {FlatList} from 'react-native';
-import {chatTime, unique} from '../Utils/helper';
+import React, {Component} from 'react';
+import {FlatList, TouchableOpacity, View} from 'react-native';
+import {Avatar, Header, ListItem} from 'react-native-elements';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import {RootContext} from '../Auth/Navigation/Context';
+import {chatTime, getChatFinalData, unique} from '../Utils/helper';
 // import {Container, Content, List, ListItem, Left, Body, Right, Thumbnail, Text} from 'native-base'
 
 export default class ChatPages extends Component {
@@ -22,6 +21,7 @@ export default class ChatPages extends Component {
   componentDidMount() {
     // this.handleGetProfile();
     this.handleGetChat();
+    this.handleGetOwnChat();
   }
 
   handleGetChat = async () => {
@@ -36,8 +36,20 @@ export default class ChatPages extends Component {
             if (key === uid) {
               chatLists.map((item) => {
                 const dataChat = Object.values(item);
-                this.setState({
-                  chatLists: dataChat,
+                const newChat = dataChat.map((chat) => {
+                  this.firebaseRef
+                    .ref('Pengguna/Penyedia_Jasa/' + idChat[1])
+                    .on('value', (snapshot) => {
+                      const data = snapshot.val() || {};
+                      const user = {
+                        name: data.nama,
+                        avatar: data.profile_photo,
+                        _id: idChat[1],
+                      };
+                      this.setState((prevState) => ({
+                        chatLists: [...prevState.chatLists, {...chat, user}],
+                      }));
+                    });
                 });
               });
             }
@@ -47,11 +59,41 @@ export default class ChatPages extends Component {
     });
   };
 
+  handleGetOwnChat = async () => {
+    const {uid} = this.context.auth.user;
+    await this.firebaseRef.ref('Pengguna/Chat').on('value', (snapshot) => {
+      if (snapshot.val()) {
+        const chatId = Object.keys(snapshot.val());
+        const chatLists = Object.values(snapshot.val());
+
+        chatId.map((idChat) => {
+          chatLists.map((item) => {
+            const dataChat = Object.values(item);
+            const newChat = dataChat.map((chat) => {
+              this.firebaseRef
+                .ref('Pengguna/Pelanggan/' + chat.senderId)
+                .on('value', (snapshot) => {
+                  const data = snapshot.val() || {};
+                  const user = {
+                    name: data.nama,
+                    avatar: data.profile_photo,
+                    _id: chat.senderId,
+                  };
+                  this.setState((prevState) => ({
+                    chatLists: [...prevState.chatLists, {...chat, user}],
+                  }));
+                });
+            });
+          });
+        });
+      }
+    });
+  };
+
   render() {
     const {navigation} = this.props;
     const {chatLists} = this.state;
-
-    console.log(chatLists);
+    const {uid} = this.context.auth.user;
     return (
       <View>
         <Header
@@ -74,11 +116,14 @@ export default class ChatPages extends Component {
         />
 
         <FlatList
-          data={unique(chatLists)}
+          data={unique(getChatFinalData(chatLists))}
           renderItem={({item}) => (
             <TouchableOpacity
               onPress={() =>
-                navigation.navigate('ChatDetail', {user_id: item.receiverId})
+                navigation.navigate('ChatDetail', {
+                  user_id:
+                    item.senderId == uid ? item.receiverId : item.senderId,
+                })
               }>
               <ListItem bottomDivider>
                 <Avatar

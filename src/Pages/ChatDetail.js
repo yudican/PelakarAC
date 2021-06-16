@@ -31,6 +31,7 @@ export default class ChatDetail extends Component {
   componentDidMount() {
     this.handleGetProfile();
     this.handleGetChat();
+    this.handleGetOwnChat();
   }
 
   handleGetChat = async () => {
@@ -41,7 +42,6 @@ export default class ChatDetail extends Component {
       .on('value', (snapshot) => {
         if (snapshot.val()) {
           const messages = Object.values(snapshot.val());
-          console.log(messages);
           this.setState((prevState) => ({
             messages: messages,
           }));
@@ -49,18 +49,42 @@ export default class ChatDetail extends Component {
       });
   };
 
+  handleGetOwnChat = async () => {
+    const {uid} = this.context.auth.user;
+    const {user_id} = this.props.route.params;
+    console.log(`Pengguna/Chat/${uid}-${user_id}`);
+    await this.firebaseRef
+      .ref(`Pengguna/Chat/${uid}-${user_id}`)
+      .on('value', (snapshot) => {
+        if (snapshot.val()) {
+          const messages = Object.values(snapshot.val());
+          const newMessage = messages.filter(
+            (message) => message.senderId == uid,
+          );
+
+          console.log(messages);
+          this.setState((prevState) => ({
+            messages: [...prevState.messages, newMessage],
+          }));
+        }
+      });
+  };
+
   handleGetProfile = async () => {
     const {user_id} = this.props.route.params;
-    await this.firebaseRef
-      .ref('Pengguna/Penyedia_Jasa/' + user_id)
-      .on('value', (snapshot) => {
-        const {nama, profile_photo} = snapshot.val();
-        this.setState((prevState) => ({
-          ...prevState,
-          nama,
-          profile_photo,
-        }));
-      });
+    const {uid} = this.context.auth.user;
+    if (user_id !== uid) {
+      await this.firebaseRef
+        .ref('Pengguna/Pelanggan/' + user_id)
+        .on('value', (snapshot) => {
+          const {nama, profile_photo} = snapshot.val();
+          this.setState((prevState) => ({
+            ...prevState,
+            nama,
+            profile_photo,
+          }));
+        });
+    }
   };
 
   onSend = (messages) => {
@@ -125,8 +149,7 @@ export default class ChatDetail extends Component {
           messages={this.state.messages.sort(
             (a, b) => getDate(b.createdAt) - getDate(a.createdAt),
           )}
-          isTyping={true}
-          renderAvatarOnTop
+          isTyping
           onSend={(messages) => this.onSend(messages)}
           user={{
             _id: user_id,
