@@ -78,23 +78,13 @@ export default class TokoDeatil extends Component {
     };
     addToCart(data, uid);
   };
-  handleAddToFavorite = async (penyedia_id) => {
+  handleAddToFavorite = (jasa_id) => {
     const {uid} = this.context.auth.user;
     const {addToFavorite} = this.context.app;
-
-    await this.firebaseRef
-      .ref('Pengguna/Penyedia_Jasa/' + penyedia_id)
-      .on('value', (snapshot) => {
-        const data = snapshot.val();
-        const newData = {
-          nama: data.nama,
-          alamat: data.alamat,
-          spanduk: data.spanduk,
-          no_telp: data.no_telp,
-          merk: data.merk,
-        };
-        addToFavorite(newData, penyedia_id, uid);
-      });
+    const data = {
+      uid_jasa: jasa_id,
+    };
+    addToFavorite(data, uid);
   };
   render() {
     const {data, jasa} = this.state;
@@ -169,6 +159,7 @@ export default class TokoDeatil extends Component {
                     Jam Operasi : 10.00 - 20.00
                   </Text> */}
                 </TouchableOpacity>
+                
                 <Icon
                   name={this.state.favorit ? 'favorite' : 'favorite-border'}
                   type="material"

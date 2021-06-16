@@ -140,7 +140,7 @@ export default class Profil extends Component {
                 </ListItem>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => navigation.navigate('KelolaJasa')}>
+                onPress={() => navigation.navigate('Favorite')}>
                 <ListItem bottomDivider>
                   <Icon name="heart" type="foundation" color="red" />
                   <ListItem.Content>

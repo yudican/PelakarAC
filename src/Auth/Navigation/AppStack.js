@@ -15,6 +15,7 @@ import Beranda from '../../Pages/Beranda';
 import ListJasaTerdekat from '../../Pages/ListJasaTerdekat';
 import ChatDetail from '../../Pages/ChatDetail';
 import TokoDeatil from '../../Pages/TokoDetail';
+import Favorite from '../../Pages/Favorite';
 
 const Stack = createStackNavigator();
 const Tab = createMaterialBottomTabNavigator();
@@ -54,6 +55,11 @@ const AppStack = () => {
       <Stack.Screen
         name="TokoDeatil"
         component={TokoDeatil}
+        options={{header: () => null}}
+      />
+      <Stack.Screen
+        name="Favorite"
+        component={Favorite}
         options={{header: () => null}}
       />
     </Stack.Navigator>

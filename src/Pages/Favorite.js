@@ -18,14 +18,25 @@ const rightButtons = [
 ];
  
 export default class Favorite extends Component{
+constructor(props) {
+    super(props);
+    this.state = {
+      search: '',
+    };
+  }
+
+
   render(){
+    const {navigation} = this.props;
     return (
       <View>
         <Header
           centerComponent={{ text: 'Toko Favorit', style: { color: 'white',fontFamily:'arial',fontWeight:'bold',fontSize:17} }}
           backgroundColor='#5D89F7'
           leftComponent={
-              <TouchableOpacity>
+              <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              >
                   <Ionicons name="arrow-back" color="#fff" size={20}/>
              </TouchableOpacity>
             }

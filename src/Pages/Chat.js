@@ -30,26 +30,28 @@ export default class ChatPages extends Component {
       if (snapshot.val()) {
         const chatId = Object.keys(snapshot.val());
         const chatLists = Object.values(snapshot.val());
-
         chatId.map((idChat) => {
           idChat.split('-').map((key) => {
             if (key === uid) {
               chatLists.map((item) => {
                 const dataChat = Object.values(item);
                 const newChat = dataChat.map((chat) => {
-                  this.firebaseRef
-                    .ref('Pengguna/Penyedia_Jasa/' + idChat[1])
+                  if (chat.receiverId === uid) {
+                    this.firebaseRef
+                    .ref('Pengguna/Penyedia_Jasa/' + chat.senderId)
                     .on('value', (snapshot) => {
                       const data = snapshot.val() || {};
-                      const user = {
-                        name: data.nama,
-                        avatar: data.profile_photo,
-                        _id: idChat[1],
-                      };
-                      this.setState((prevState) => ({
-                        chatLists: [...prevState.chatLists, {...chat, user}],
-                      }));
-                    });
+                        const user = {
+                          name: data.nama,
+                          avatar: data.profile_photo,
+                          _id: chat.senderId,
+                        };
+                        this.setState((prevState) => ({
+                          chatLists: [...prevState.chatLists, {...chat, user}],
+                        }));
+                      });
+                  }
+                  
                 });
               });
             }
@@ -70,6 +72,7 @@ export default class ChatPages extends Component {
           chatLists.map((item) => {
             const dataChat = Object.values(item);
             const newChat = dataChat.map((chat) => {
+              if(chat.receiverId === uid){
               this.firebaseRef
                 .ref('Pengguna/Pelanggan/' + chat.senderId)
                 .on('value', (snapshot) => {
@@ -83,6 +86,8 @@ export default class ChatPages extends Component {
                     chatLists: [...prevState.chatLists, {...chat, user}],
                   }));
                 });
+              }
+              
             });
           });
         });
@@ -94,6 +99,7 @@ export default class ChatPages extends Component {
     const {navigation} = this.props;
     const {chatLists} = this.state;
     const {uid} = this.context.auth.user;
+    console.log(getChatFinalData(chatLists))
     return (
       <View>
         <Header
