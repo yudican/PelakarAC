@@ -69,11 +69,11 @@ export const AppProvider = ({children}) => {
             Alert.alert('Error', 'Terjadi Kesalahan');
           }
         },
-        addToCart: async (data, uid) => {
+        addToCart: async (data, jasa_id, uid) => {
           try {
             await db.app
               .database()
-              .ref(`Pengguna/Pelanggan/${uid}/Keranjang/${uuid.v4()}`)
+              .ref(`Pengguna/Pelanggan/${uid}/Keranjang/${jasa_id}`)
               .set(data)
               .then((data) => {
                 ToastAndroid.showWithGravityAndOffset(
