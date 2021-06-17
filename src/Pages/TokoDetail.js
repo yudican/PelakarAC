@@ -36,6 +36,7 @@ export default class TokoDeatil extends Component {
       favorit: false,
       data: {},
       jasa: [],
+      Data_jasa : {},
     };
   }
 
@@ -70,10 +71,40 @@ export default class TokoDeatil extends Component {
     }
   }
 
-  handleAddToCart = (jasa, jasa_id) => {
+  handleAddToCart = async (jasa, jasa_id) => {
     const {uid} = this.context.auth.user;
-    const {addToCart} = this.context.app;
-    addToCart(jasa, jasa_id, uid);
+    console.log(uid);
+    const {addToCart, PushToCartJasa} = this.context.app;
+    await this.firebaseRef
+      .ref('Pengguna/Penyedia_Jasa/' + jasa.uid_penyedia_jasa)
+      .on('value', (snapshot) => {
+        const data = snapshot.val();
+         this.newData = {
+          nama: data.nama,
+          alamat: data.alamat,
+          // Data_Jasa : jasa
+        };
+
+        //  this.firebaseRef
+        //   .ref(`Pengguna/Pelanggan/${uid}/Keranjang/`)
+        //   .on('value', (snap) => {
+        //     const dataKeranjang = snap.val();
+
+        //     console.log('uid new' + Object.keys(dataKeranjang))
+        //     if(Object.keys(dataKeranjang) === jasa.uid_penyedia_jasa){
+        //        addToCart(jasa_id,uid, this.newData, jasa.uid_penyedia_jasa, jasa);
+        //     }else {
+        //       PushToCartJasa(jasa,uid, jasa.uid_penyedia_jasa, jasa_id)
+        //     }
+        //   })
+       
+        // addToCart(jasa_id,uid, this.newData, jasa.uid_penyedia_jasa, jasa);
+        // PushToCartJasa(jasa,uid, jasa.uid_penyedia_jasa)
+      });
+
+     
+
+      console.log('jasa_id' + jasa.uid_penyedia_jasa);
   };
 
   handleAddToFavorite = async (penyedia) => {

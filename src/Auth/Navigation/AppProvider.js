@@ -69,13 +69,18 @@ export const AppProvider = ({children}) => {
             Alert.alert('Error', 'Terjadi Kesalahan');
           }
         },
-        addToCart: async (data, jasa_id, uid) => {
+        addToCart: async (uid_jasa,uid, newData, penyedia_id, dataJasa) => {
           try {
             await db.app
               .database()
-              .ref(`Pengguna/Pelanggan/${uid}/Keranjang/${jasa_id}`)
-              .set(data)
-              .then((data) => {
+              .ref(`Pengguna/Pelanggan/${uid}/Keranjang/${penyedia_id}`)
+              .set(newData)
+              .then((newData) => {
+
+                db.app
+                .database()
+                .ref(`Pengguna/Pelanggan/${uid}/Keranjang/${penyedia_id}/Data_jasa/${uid_jasa}`)
+                .push(dataJasa)
                 ToastAndroid.showWithGravityAndOffset(
                   'Jasa Berhasil Ditambah Keranjang',
                   ToastAndroid.LONG,
@@ -85,6 +90,33 @@ export const AppProvider = ({children}) => {
                 );
               });
           } catch (e) {
+            ToastAndroid.showWithGravityAndOffset(
+              'Terjadi Kesalahan',
+              ToastAndroid.LONG,
+              ToastAndroid.BOTTOM,
+              25,
+              50,
+            );
+          }
+        },
+        PushToCartJasa : async (data, uid, penyedia_id, uid_jasa) => {
+          try {
+            await db.app
+              .database()
+              .ref(`Pengguna/Pelanggan/${uid}/Keranjang/${penyedia_id}/Data_Jasa/${uid_jasa}`)
+              .push(data)
+              .then((data) => {
+                
+                ToastAndroid.showWithGravityAndOffset(
+                  'Jasa penyedia Berhasil Ditambah Keranjang',
+                  ToastAndroid.LONG,
+                  ToastAndroid.BOTTOM,
+                  25,
+                  50,
+                );
+              });
+          } catch (e) {
+            console.log("push to cart" +e)
             ToastAndroid.showWithGravityAndOffset(
               'Terjadi Kesalahan',
               ToastAndroid.LONG,
