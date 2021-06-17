@@ -62,7 +62,7 @@ export default class Beranda extends Component {
               <Icon reverse name="tag" type="evilicon" color="orange" />
               <Text style={{textAlign: 'center'}}>Rekomendasi</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => console.log('Menu3')}>
+            <TouchableOpacity onPress={() => this.props.navigation.navigate('Favorite')}>
               <Icon reverse name="favorite" type="material" color="red" />
               <Text style={{textAlign: 'center'}}>Favorit</Text>
             </TouchableOpacity>
@@ -81,7 +81,7 @@ export default class Beranda extends Component {
             name="shoppingcart"
             type="antdesign"
             color="#F18F37"
-            onPress={() => console.log('This Is Shopping Cart')}
+            onPress={() => this.props.navigation.navigate('Keranjang')}
           />
         </View>
       </View>

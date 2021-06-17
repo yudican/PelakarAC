@@ -75,7 +75,7 @@ export default class ChatDetail extends Component {
     const {uid} = this.context.auth.user;
     if (user_id !== uid) {
       await this.firebaseRef
-        .ref('Pengguna/Pelanggan/' + user_id)
+        .ref('Pengguna/Penyedia_Jasa/' + user_id)
         .on('value', (snapshot) => {
           const {nama, profile_photo} = snapshot.val();
           this.setState((prevState) => ({

@@ -36,6 +36,7 @@ export default class TokoDeatil extends Component {
       favorit: false,
       data: {},
       jasa: [],
+      Data_jasa : {},
     };
   }
 
@@ -70,7 +71,7 @@ export default class TokoDeatil extends Component {
     }
   }
 
-  handleAddToCart = (jasa, jasa_id) => {
+  handleAddToCart = async (jasa, jasa_id) => {
     const {uid} = this.context.auth.user;
     const {addToCart, addJasaToCart} = this.context.app;
     const {uid_penyedia} = this.props.route.params;
@@ -113,6 +114,7 @@ export default class TokoDeatil extends Component {
         };
         addToFavorite(newData, penyedia, uid);
       });
+
   };
   render() {
     const {data, jasa} = this.state;
@@ -187,6 +189,7 @@ export default class TokoDeatil extends Component {
                     Jam Operasi : 10.00 - 20.00
                   </Text> */}
                 </TouchableOpacity>
+                
                 <Icon
                   name={this.state.favorit ? 'favorite' : 'favorite-border'}
                   type="material"

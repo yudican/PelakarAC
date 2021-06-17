@@ -140,7 +140,7 @@ export default class Profil extends Component {
                 </ListItem>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => navigation.navigate('KelolaJasa')}>
+                onPress={() => navigation.navigate('Favorite')}>
                 <ListItem bottomDivider>
                   <Icon name="heart" type="foundation" color="red" />
                   <ListItem.Content>
@@ -149,7 +149,7 @@ export default class Profil extends Component {
                   <ListItem.Chevron />
                 </ListItem>
               </TouchableOpacity>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('Keranjang')}>
                 <ListItem bottomDivider>
                   <Icon name="cart" type="fontisto" color="orange" />
                   <ListItem.Content>
