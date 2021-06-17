@@ -72,12 +72,33 @@ export default class TokoDeatil extends Component {
 
   handleAddToCart = (jasa, jasa_id) => {
     const {uid} = this.context.auth.user;
-    const {addToCart} = this.context.app;
-    addToCart(jasa, jasa_id, uid);
+    const {addToCart, addJasaToCart} = this.context.app;
+    const {uid_penyedia} = this.props.route.params;
+    const {data} = this.state;
+    const user = {
+      merk: data.merk,
+      nama: data.nama,
+    };
+
+    this.firebaseRef
+      .ref(`Pengguna/Pelanggan/${uid}/Keranjang/${uid_penyedia}/Data_Jasa`)
+      .once('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          addJasaToCart(jasa, jasa_id, uid_penyedia, uid);
+          this.firebaseRef.ref().off();
+        } else {
+          addToCart(user, jasa, jasa_id, uid_penyedia, uid);
+          this.firebaseRef.ref().off();
+        }
+      });
+    // addToCart(user, jasa, jasa_id, uid_penyedia, uid);
   };
+
   handleAddToFavorite = async (penyedia) => {
     const {uid} = this.context.auth.user;
     const {addToFavorite} = this.context.app;
+
     await this.firebaseRef
       .ref('Pengguna/Penyedia_Jasa/' + penyedia)
       .on('value', (snapshot) => {

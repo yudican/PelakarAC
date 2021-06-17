@@ -69,20 +69,45 @@ export const AppProvider = ({children}) => {
             Alert.alert('Error', 'Terjadi Kesalahan');
           }
         },
-        addToCart: async (data, jasa_id, uid) => {
+        addJasaToCart: async (jasa, jasa_id, uid_penyedia, uid) => {
+          await db.app
+            .database()
+            .ref(
+              `Pengguna/Pelanggan/${uid}/Keranjang/${uid_penyedia}/Data_Jasa/${jasa_id}`,
+            )
+            .set(jasa)
+            .then((data) => {
+              ToastAndroid.showWithGravityAndOffset(
+                'Jasa Berhasil Ditambah Keranjang',
+                ToastAndroid.LONG,
+                ToastAndroid.BOTTOM,
+                25,
+                50,
+              );
+            });
+        },
+        addToCart: async (data, jasa, jasa_id, uid_penyedia, uid) => {
           try {
             await db.app
               .database()
-              .ref(`Pengguna/Pelanggan/${uid}/Keranjang/${jasa_id}`)
+              .ref(`Pengguna/Pelanggan/${uid}/Keranjang/${uid_penyedia}`)
               .set(data)
               .then((data) => {
-                ToastAndroid.showWithGravityAndOffset(
-                  'Jasa Berhasil Ditambah Keranjang',
-                  ToastAndroid.LONG,
-                  ToastAndroid.BOTTOM,
-                  25,
-                  50,
-                );
+                db.app
+                  .database()
+                  .ref(
+                    `Pengguna/Pelanggan/${uid}/Keranjang/${uid_penyedia}/Data_Jasa/${jasa_id}`,
+                  )
+                  .set(jasa)
+                  .then((data) => {
+                    ToastAndroid.showWithGravityAndOffset(
+                      'Jasa Berhasil Ditambah Keranjang',
+                      ToastAndroid.LONG,
+                      ToastAndroid.BOTTOM,
+                      25,
+                      50,
+                    );
+                  });
               });
           } catch (e) {
             ToastAndroid.showWithGravityAndOffset(
