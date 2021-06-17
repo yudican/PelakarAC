@@ -78,6 +78,7 @@ export default class TokoDeatil extends Component {
     const user = {
       merk: data.merk,
       nama: data.nama,
+      alamat: data.alamat,
     };
 
     this.firebaseRef

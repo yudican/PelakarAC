@@ -53,13 +53,28 @@ export default class ListJasaTerdekat extends Component {
       });
   };
 
-  handleAddToCart = (jasa_id) => {
+  handleAddToCart = (jasa, jasa_id, uid_penyedia, userData) => {
     const {uid} = this.context.auth.user;
-    const {addToCart} = this.context.app;
-    const data = {
-      uid_jasa: jasa_id,
+    const {addToCart, addJasaToCart} = this.context.app;
+
+    const user = {
+      merk: userData.merk,
+      nama: userData.nama,
+      alamat: userData.alamat,
     };
-    addToCart(data, uid);
+
+    this.firebaseRef
+      .ref(`Pengguna/Pelanggan/${uid}/Keranjang/${uid_penyedia}/Data_Jasa`)
+      .once('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          addJasaToCart(jasa, jasa_id, uid_penyedia, uid);
+          this.firebaseRef.ref().off();
+        } else {
+          addToCart(user, jasa, jasa_id, uid_penyedia, uid);
+          this.firebaseRef.ref().off();
+        }
+      });
   };
 
   //   handleGetJasa = async (id_jasa) => {
@@ -164,7 +179,14 @@ export default class ListJasaTerdekat extends Component {
                                 size={16}
                                 type="antdesign"
                                 color="#F18F37"
-                                onPress={() => this.handleAddToCart(dataKey)}
+                                onPress={() =>
+                                  this.handleAddToCart(
+                                    this.state.jasa[key].Data_Jasa[dataKey],
+                                    dataKey,
+                                    key,
+                                    this.state.jasa[key],
+                                  )
+                                }
                               />
                             </ListItem.Subtitle>
                           </ListItem>
