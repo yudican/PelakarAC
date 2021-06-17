@@ -69,54 +69,47 @@ export const AppProvider = ({children}) => {
             Alert.alert('Error', 'Terjadi Kesalahan');
           }
         },
-        addToCart: async (uid_jasa,uid, newData, penyedia_id, dataJasa) => {
-          try {
-            await db.app
-              .database()
-              .ref(`Pengguna/Pelanggan/${uid}/Keranjang/${penyedia_id}`)
-              .set(newData)
-              .then((newData) => {
-
-                db.app
-                .database()
-                .ref(`Pengguna/Pelanggan/${uid}/Keranjang/${penyedia_id}/Data_jasa/${uid_jasa}`)
-                .push(dataJasa)
-                ToastAndroid.showWithGravityAndOffset(
-                  'Jasa Berhasil Ditambah Keranjang',
-                  ToastAndroid.LONG,
-                  ToastAndroid.BOTTOM,
-                  25,
-                  50,
-                );
-              });
-          } catch (e) {
-            ToastAndroid.showWithGravityAndOffset(
-              'Terjadi Kesalahan',
-              ToastAndroid.LONG,
-              ToastAndroid.BOTTOM,
-              25,
-              50,
-            );
-          }
+        addJasaToCart: async (jasa, jasa_id, uid_penyedia, uid) => {
+          await db.app
+            .database()
+            .ref(
+              `Pengguna/Pelanggan/${uid}/Keranjang/${uid_penyedia}/Data_Jasa/${jasa_id}`,
+            )
+            .set(jasa)
+            .then((data) => {
+              ToastAndroid.showWithGravityAndOffset(
+                'Jasa Berhasil Ditambah Keranjang',
+                ToastAndroid.LONG,
+                ToastAndroid.BOTTOM,
+                25,
+                50,
+              );
+            });
         },
-        PushToCartJasa : async (data, uid, penyedia_id, uid_jasa) => {
+        addToCart: async (data, jasa, jasa_id, uid_penyedia, uid) => {
           try {
             await db.app
               .database()
-              .ref(`Pengguna/Pelanggan/${uid}/Keranjang/${penyedia_id}/Data_Jasa/${uid_jasa}`)
-              .push(data)
+              .ref(`Pengguna/Pelanggan/${uid}/Keranjang/${uid_penyedia}`)
+              .set(data)
               .then((data) => {
-                
-                ToastAndroid.showWithGravityAndOffset(
-                  'Jasa penyedia Berhasil Ditambah Keranjang',
-                  ToastAndroid.LONG,
-                  ToastAndroid.BOTTOM,
-                  25,
-                  50,
-                );
+                db.app
+                  .database()
+                  .ref(
+                    `Pengguna/Pelanggan/${uid}/Keranjang/${uid_penyedia}/Data_Jasa/${jasa_id}`,
+                  )
+                  .set(jasa)
+                  .then((data) => {
+                    ToastAndroid.showWithGravityAndOffset(
+                      'Jasa Berhasil Ditambah Keranjang',
+                      ToastAndroid.LONG,
+                      ToastAndroid.BOTTOM,
+                      25,
+                      50,
+                    );
+                  });
               });
           } catch (e) {
-            console.log("push to cart" +e)
             ToastAndroid.showWithGravityAndOffset(
               'Terjadi Kesalahan',
               ToastAndroid.LONG,

@@ -73,43 +73,33 @@ export default class TokoDeatil extends Component {
 
   handleAddToCart = async (jasa, jasa_id) => {
     const {uid} = this.context.auth.user;
-    console.log(uid);
-    const {addToCart, PushToCartJasa} = this.context.app;
-    await this.firebaseRef
-      .ref('Pengguna/Penyedia_Jasa/' + jasa.uid_penyedia_jasa)
-      .on('value', (snapshot) => {
+    const {addToCart, addJasaToCart} = this.context.app;
+    const {uid_penyedia} = this.props.route.params;
+    const {data} = this.state;
+    const user = {
+      merk: data.merk,
+      nama: data.nama,
+    };
+
+    this.firebaseRef
+      .ref(`Pengguna/Pelanggan/${uid}/Keranjang/${uid_penyedia}/Data_Jasa`)
+      .once('value', (snapshot) => {
         const data = snapshot.val();
-         this.newData = {
-          nama: data.nama,
-          alamat: data.alamat,
-          // Data_Jasa : jasa
-        };
-
-        //  this.firebaseRef
-        //   .ref(`Pengguna/Pelanggan/${uid}/Keranjang/`)
-        //   .on('value', (snap) => {
-        //     const dataKeranjang = snap.val();
-
-        //     console.log('uid new' + Object.keys(dataKeranjang))
-        //     if(Object.keys(dataKeranjang) === jasa.uid_penyedia_jasa){
-        //        addToCart(jasa_id,uid, this.newData, jasa.uid_penyedia_jasa, jasa);
-        //     }else {
-        //       PushToCartJasa(jasa,uid, jasa.uid_penyedia_jasa, jasa_id)
-        //     }
-        //   })
-       
-        // addToCart(jasa_id,uid, this.newData, jasa.uid_penyedia_jasa, jasa);
-        // PushToCartJasa(jasa,uid, jasa.uid_penyedia_jasa)
+        if (data) {
+          addJasaToCart(jasa, jasa_id, uid_penyedia, uid);
+          this.firebaseRef.ref().off();
+        } else {
+          addToCart(user, jasa, jasa_id, uid_penyedia, uid);
+          this.firebaseRef.ref().off();
+        }
       });
-
-     
-
-      console.log('jasa_id' + jasa.uid_penyedia_jasa);
+    // addToCart(user, jasa, jasa_id, uid_penyedia, uid);
   };
 
   handleAddToFavorite = async (penyedia) => {
     const {uid} = this.context.auth.user;
     const {addToFavorite} = this.context.app;
+
     await this.firebaseRef
       .ref('Pengguna/Penyedia_Jasa/' + penyedia)
       .on('value', (snapshot) => {
