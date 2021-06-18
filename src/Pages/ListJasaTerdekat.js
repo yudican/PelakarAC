@@ -61,6 +61,7 @@ export default class ListJasaTerdekat extends Component {
       merk: userData.merk,
       nama: userData.nama,
       alamat: userData.alamat,
+      spanduk: userData.spanduk,
     };
 
     this.firebaseRef

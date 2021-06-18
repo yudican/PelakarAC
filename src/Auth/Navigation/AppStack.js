@@ -17,6 +17,8 @@ import ChatDetail from '../../Pages/ChatDetail';
 import TokoDeatil from '../../Pages/TokoDetail';
 import Favorite from '../../Pages/Favorite';
 import Cart from '../../Pages/Cart';
+import PesananLangsung from '../../Pages/PesananLangsung';
+import PesananDetail from '../../Pages/PesananDetail';
 
 const Stack = createStackNavigator();
 const Tab = createMaterialBottomTabNavigator();
@@ -66,6 +68,16 @@ const AppStack = () => {
       <Stack.Screen
         name="Keranjang"
         component={Cart}
+        options={{header: () => null}}
+      />
+      <Stack.Screen
+        name="PesananLangsung"
+        component={PesananLangsung}
+        options={{header: () => null}}
+      />
+      <Stack.Screen
+        name="PesananDetail"
+        component={PesananDetail}
         options={{header: () => null}}
       />
     </Stack.Navigator>
