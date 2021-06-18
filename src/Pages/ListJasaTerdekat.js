@@ -42,7 +42,7 @@ export default class ListJasaTerdekat extends Component {
   }
 
   handleGetPenyediaJasa = async () => {
-    this.firebaseRef
+  await this.firebaseRef
       .ref('/Pengguna/Penyedia_Jasa')
       .on('value', (querySnapShot) => {
         let data = querySnapShot.val() ? querySnapShot.val() : {};

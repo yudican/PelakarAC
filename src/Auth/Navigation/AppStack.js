@@ -13,6 +13,7 @@ import KelolaJasa from '../../Pages/KelolaJasa';
 import TambahJasa from '../../Pages/TambahJasa';
 import Beranda from '../../Pages/Beranda';
 import ListJasaTerdekat from '../../Pages/ListJasaTerdekat';
+import ListJasaRekomendasi from '../../Pages/ListJasaRekomendasi';
 import ChatDetail from '../../Pages/ChatDetail';
 import TokoDeatil from '../../Pages/TokoDetail';
 import Favorite from '../../Pages/Favorite';
@@ -46,6 +47,11 @@ const AppStack = () => {
       <Stack.Screen
         name="ListJasaTerdekat"
         component={ListJasaTerdekat}
+        options={{header: () => null}}
+      />
+      <Stack.Screen
+        name="ListJasaRekomendasi"
+        component={ListJasaRekomendasi}
         options={{header: () => null}}
       />
       <Stack.Screen

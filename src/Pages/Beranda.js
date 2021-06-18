@@ -13,6 +13,7 @@ export default class Beranda extends Component {
     };
   }
   render() {
+
     return (
       <View style={{flex: 1}}>
         <Header
@@ -58,7 +59,7 @@ export default class Beranda extends Component {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.categoryBtn}
-              onPress={() => console.log('Menu2')}>
+              onPress={() => this.props.navigation.navigate('ListJasaRekomendasi')}>
               <Icon reverse name="tag" type="evilicon" color="orange" />
               <Text style={{textAlign: 'center'}}>Rekomendasi</Text>
             </TouchableOpacity>
