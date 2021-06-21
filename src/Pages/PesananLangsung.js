@@ -31,13 +31,14 @@ export default class PesananLangsung extends Component {
       alamatAlternatif: '',
       data: {},
       jasa: [],
-      user : {}
+      user: {},
     };
   }
 
   componentDidMount() {
     this.handleGetJasa();
     this.handleGetUser();
+    this.getAdminFee();
   }
 
   handleGetJasa = async () => {
@@ -69,17 +70,28 @@ export default class PesananLangsung extends Component {
       });
   };
 
-  handleGetUser = async()  => {
+  getAdminFee = async () => {
+    await this.firebaseRef
+      .ref(`Pengguna/Pengaturan`)
+      .on('value', (snapshot) => {
+        const data = snapshot.val() || {};
+        if (data) {
+          this.setState({biayaAdmin: data.biayaAdmin});
+        }
+      });
+  };
+
+  handleGetUser = async () => {
     const {uid} = this.context.auth.user;
     await this.firebaseRef
-                .ref(`Pengguna/Pelanggan/${uid}`)
-                .on('value', (snap) => {
-                  const users = snap.val() || {};
-                  this.setState({
-                    user : users
-                  })
-                })
-  }
+      .ref(`Pengguna/Pelanggan/${uid}`)
+      .on('value', (snap) => {
+        const users = snap.val() || {};
+        this.setState({
+          user: users,
+        });
+      });
+  };
 
   updateQty = (value, jasa_id, type, harga) => {
     const {uid} = this.context.auth.user;
@@ -104,7 +116,7 @@ export default class PesananLangsung extends Component {
       totalHarga,
       data,
       alamatAlternatif,
-      user
+      user,
     } = this.state;
     const trxId = 'TRX-' + new Date().getTime();
     const noOrder = trxId;
@@ -118,8 +130,8 @@ export default class PesananLangsung extends Component {
       status: 'Belum Dikonfirmasi',
       rating: 0,
       ulasan: '',
-      uidPelanggan : uid,
-      uidPenyedia : uid_penyedia
+      uidPelanggan: uid,
+      uidPenyedia: uid_penyedia,
     };
 
     const notificationData = {
@@ -135,11 +147,9 @@ export default class PesananLangsung extends Component {
     addNotification(notificationData, uid_penyedia);
     this.firebaseRef
       .ref(`Pengguna/Pelanggan/${uid}/Keranjang/${uid_penyedia}`)
-      .remove()
-        
-      
-      this.props.navigation.navigate('PesananDetail', {uid_penyedia, noOrder}); 
-      
+      .remove();
+
+    this.props.navigation.navigate('PesananDetail', {uid_penyedia, noOrder});
   };
 
   render() {
