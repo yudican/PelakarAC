@@ -75,7 +75,7 @@ export const AppProvider = ({children}) => {
             .ref(
               `Pengguna/Pelanggan/${uid}/Keranjang/${uid_penyedia}/Data_Jasa/${jasa_id}`,
             )
-            .set(jasa)
+            .set({...jasa, jumlah: 1, isSelected: false})
             .then((data) => {
               ToastAndroid.showWithGravityAndOffset(
                 'Jasa Berhasil Ditambah Keranjang',
@@ -86,19 +86,32 @@ export const AppProvider = ({children}) => {
               );
             });
         },
+        updateCart: async (
+          data,
+          jasa_id,
+          uid_penyedia,
+          uid,
+          parent = false,
+        ) => {
+          const url = !parent ? `/Data_Jasa/${jasa_id}` : '';
+          await db.app
+            .database()
+            .ref(`Pengguna/Pelanggan/${uid}/Keranjang/${uid_penyedia}${url}`)
+            .update(data);
+        },
         addToCart: async (data, jasa, jasa_id, uid_penyedia, uid) => {
           try {
             await db.app
               .database()
               .ref(`Pengguna/Pelanggan/${uid}/Keranjang/${uid_penyedia}`)
-              .set(data)
+              .set({...data, selectedAll: false})
               .then((data) => {
                 db.app
                   .database()
                   .ref(
                     `Pengguna/Pelanggan/${uid}/Keranjang/${uid_penyedia}/Data_Jasa/${jasa_id}`,
                   )
-                  .set(jasa)
+                  .set({...jasa, jumlah: 1, isSelected: false})
                   .then((data) => {
                     ToastAndroid.showWithGravityAndOffset(
                       'Jasa Berhasil Ditambah Keranjang',
@@ -143,6 +156,55 @@ export const AppProvider = ({children}) => {
               50,
             );
           }
+        },
+        addOrderRequest: async (data, jasa, uid, uid_penyedia) => {
+          await db.app
+            .database()
+            .ref(`Pengguna/Pesanan/${uid}-${uid_penyedia}`)
+            .set(data)
+            .then((data) => {
+              let jasaKey = Object.keys(jasa);
+
+              jasaKey.map((dataKey) => {
+                if (jasa[dataKey]?.isSelected) {
+                  const dataJasa = {
+                    hargaJasa: jasa[dataKey].hargaJasa,
+                    namaJasa: jasa[dataKey].namaJasa,
+                    jumlah: jasa[dataKey].jumlah,
+                    subTotal: jasa[dataKey].jumlah * jasa[dataKey].hargaJasa,
+                  };
+                  db.app
+                    .database()
+                    .ref(
+                      `Pengguna/Pesanan/${uid}-${uid_penyedia}/Jasa/${dataKey}`,
+                    )
+                    .set(dataJasa)
+                    .then((data) => {
+                      ToastAndroid.showWithGravityAndOffset(
+                        'Pesanan Berhasil Dibuat',
+                        ToastAndroid.LONG,
+                        ToastAndroid.BOTTOM,
+                        25,
+                        50,
+                      );
+                    });
+                }
+              });
+            });
+        },
+        addJasaToOrder: async (jasa, jasa_id, uid_penyedia, uid) => {
+          await db.app
+            .database()
+            .ref(`Pengguna/Pesanan/${uid}-${uid_penyedia}/Jasa/${jasa_id}`)
+            .set({...jasa, jumlah: 1, isSelected: false});
+        },
+        addNotification: async (data, uid_penyedia) => {
+          await db.app
+            .database()
+            .ref(
+              `Pengguna/Penyedia_Jasa/${uid_penyedia}/Notifikasi/${uuid.v4()}`,
+            )
+            .set(data);
         },
         uploadImage: async (uri, fileName, path) => {
           const imageRef = storage().ref(`${path}/${fileName}`);

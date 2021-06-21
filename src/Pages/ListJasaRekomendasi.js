@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 // import { Container, Header, Content, List, ListItem, Text, Separator } from 'native-base';
 import {View,TouchableOpacity,Image,ScrollView,Text,StyleSheet,TextInput,Button,ImageBackground,Dimensions} from 'react-native'
 import Ionicons from 'react-native-vector-icons/Ionicons'
@@ -141,62 +141,62 @@ export default class ListJasaRekomendasi extends Component {
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 const styles = StyleSheet.create({
-    container : {
-        flex:1,
-        height:'100%'
+  container: {
+    flex: 1,
+    height: '100%',
+  },
+  labelToko: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  cardContainer: {
+    borderRadius: 15,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 3,
     },
-    labelToko : {
-        fontSize:16,
-        fontWeight:'bold'
+    shadowOpacity: 0.29,
+    shadowRadius: 4.65,
+    elevation: 7,
+    marginTop: -windowHeight * 0.07,
+  },
+  cardContainer2: {
+    borderRadius: 15,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 3,
     },
-    cardContainer :{
-        borderRadius:15,
-        backgroundColor: 'white',
-        borderRadius: 10,
-        shadowColor: '#000',
-        shadowOffset: {
-        width: 0,
-        height: 3,
-        },
-        shadowOpacity: 0.29,
-        shadowRadius: 4.65,
-        elevation: 7,
-        marginTop: -windowHeight * 0.07,
-    }, 
-    cardContainer2 :{
-        borderRadius:15,
-        backgroundColor: 'white',
-        borderRadius: 10,
-        shadowColor: '#000',
-        shadowOffset: {
-        width: 0,
-        height: 3,
-        },
-        shadowOpacity: 0.29,
-        shadowRadius: 4.65,
-        elevation: 7,
-    },
-    labelTokoContainer : {
-        flexDirection:'row',
-        flexWrap: 'wrap',
-    },
-    button: {
-        width:'95%',
-        backgroundColor:'green',
-         borderRadius: 25,
-          marginVertical: 10,
-          paddingVertical: 13,
-      },
-    buttonText: {
-        fontSize:16,
-        fontWeight:'500',
-        color:'#ffffff',
-        textAlign:'center',
-    },
-    header: {
-        width: windowWidth,
-        height: windowHeight * 0.3,
-        paddingHorizontal: 30,
-        paddingTop: 10,
-      },
-})
+    shadowOpacity: 0.29,
+    shadowRadius: 4.65,
+    elevation: 7,
+  },
+  labelTokoContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  button: {
+    width: '95%',
+    backgroundColor: 'green',
+    borderRadius: 25,
+    marginVertical: 10,
+    paddingVertical: 13,
+  },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#ffffff',
+    textAlign: 'center',
+  },
+  header: {
+    width: windowWidth,
+    height: windowHeight * 0.3,
+    paddingHorizontal: 30,
+    paddingTop: 10,
+  },
+});

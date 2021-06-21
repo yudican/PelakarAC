@@ -1,14 +1,26 @@
-import React, { Component } from 'react';
-import {StyleSheet, Text,View, Dimensions, TouchableOpacity,Image} from 'react-native';
+import React, {Component} from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Dimensions,
+  TouchableOpacity,
+  Image,
+} from 'react-native';
 //import IconPesananAktif from '../../Assets/Icon/AirConditioning.png';
 
-const PesananAktif = ({title, status, date}) => {
+const PesananAktif = ({title, status, date, onPress}) => {
   return (
-    <TouchableOpacity style={styles.container}>
-      <Image source={require('../../Assets/Icon/AirConditioning.png')} style={{width:30,height:30}}/>
+    <TouchableOpacity style={styles.container} onPress={onPress}>
+      <Image
+        source={require('../../Assets/Icon/AirConditioning.png')}
+        style={{width: 30, height: 30}}
+      />
       <View style={styles.text}>
-      <Text style={styles.title}>[{date}] {title}</Text>
-      <Text style={styles.status(status)}>{status}</Text>
+        <Text style={styles.title}>
+          [{date}] {title}
+        </Text>
+        <Text style={styles.status(status)}>{status}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -33,19 +45,24 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.29,
     shadowRadius: 4.65,
     elevation: 7,
-    marginVertical: windowHeight*0.01,
-    alignItems: 'center'
+    marginVertical: windowHeight * 0.01,
+    alignItems: 'center',
   },
   text: {
-    marginLeft: windowWidth*0.02,
+    marginLeft: windowWidth * 0.02,
   },
   title: {
     fontSize: 15,
-    fontFamily: 'TitilliumWeb-SemiBold'
+    fontFamily: 'TitilliumWeb-SemiBold',
   },
   status: (status) => ({
     fontSize: 14,
     fontFamily: 'TitilliumWeb-Light',
-    color: status === 'Sudah Selesai' ? '#55CB95' : status === 'Dalam Proses' || status === 'Belum Dikonfirmasi' ? '#F18F37' : 'red',
-  })
+    color:
+      status === 'Sudah Selesai'
+        ? '#55CB95'
+        : status === 'Dalam Proses' || status === 'Belum Dikonfirmasi'
+        ? '#F18F37'
+        : 'red',
+  }),
 });

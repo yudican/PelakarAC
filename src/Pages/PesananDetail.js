@@ -1,135 +1,229 @@
-import React, { Component } from 'react';
+import database from '@react-native-firebase/database';
+import React, {Component} from 'react';
 // import { Container, Header, Content, List, ListItem, Text, Separator } from 'native-base';
-import {View,TouchableOpacity,Image,ScrollView,Text,StyleSheet,TextInput,Button,ImageBackground,Dimensions} from 'react-native'
-import Ionicons from 'react-native-vector-icons/Ionicons'
-import {Header, ListItem, Avatar, Card, CheckBox,Icon,SearchBar,Rating} from 'react-native-elements'
-import ThemedListItem from 'react-native-elements/dist/list/ListItem';
+import {
+  Dimensions,
+  ImageBackground,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
+import {Card, Header, ListItem, Rating} from 'react-native-elements';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import {RootContext} from '../Auth/Navigation/Context';
 
-export default class PesananLangsung extends Component {
-    constructor(props){
-        super(props)
-        this.state={
-            // search:''
-            qty : '1',
-            harga : 250000,
-            totalHarga : 0,
-            biayaAdmin:2500,
-            status : 'Belum Dikonfirmasi',
-            ulasan : 'Servisnya luar biasa mantap!! Tukangnya pun ramah',
-            rating : 5,
-            alasanPembatalan : 'Salah Pesan',
-            catatan:'Sesuai Aplikasi aja ya bg'
+export default class PesananDetail extends Component {
+  firebaseRef = database();
+  static contextType = RootContext;
+  constructor(props) {
+    super(props);
+    this.state = {
+      // search:''
+      uidPenyedia : '',
+      noOder : '',
+      penyedia_jasa : '',
+      no_telpon : '',
+      alamat : '',
+      image : '',
+      qty: '1',
+      harga: 0,
+      totalHarga: 0,
+      biayaAdmin: null,
+      status: 'Belum Dikonfirmasi',
+      ulasan: '',
+      rating : null,
+      alasanPembatalan: 'Salah Pesan',
+      catatan: '',
+      dataJasa: [],
+    };
+  }
+
+  componentDidMount() {
+    this.handleGetOrder();
+    // this.handleGetPesanan();
+  }
+
+  handleGetOrder = async () => {
+    const {uid_penyedia, noOrder} = this.props.route.params;
+    const {uid} = this.context.auth.user;
+    await this.firebaseRef
+      .ref(`Pengguna/Pesanan/${uid}-${uid_penyedia}`)
+      .on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          let jasaKey = Object.keys(data.Jasa);
+          this.firebaseRef
+                .ref(`Pengguna/Penyedia_Jasa/${uid_penyedia}`)
+                .on('value', (snap) => {
+                    const dataPenyedia = snap.val() ? snap.val() : {};
+
+                  console.log('total harga' + data.totalHarga)
+                  
+                  this.setState({
+                      uidPenyedia : uid_penyedia,
+                      noOder : noOrder,
+                      totalHarga : data.totalHarga,
+                      biayaAdmin : data.biayaAdmin,
+                      status : data.status,
+                      rating : data.rating,
+                      ulasan : data.ulasan,
+                      dataJasa: data.Jasa,
+                      penyedia_jasa : dataPenyedia.nama,
+                      alamat : dataPenyedia.alamat,
+                      no_telpon : dataPenyedia.no_telp,
+                      image : dataPenyedia.spanduk,
+                      catatan : data.catatan,
+                      ulasan : data.ulasan,
+                      alasanPembatalan : data.alasanPembatalan
+        
+                    });
+                  
+                })
+
+          
+          
         }
-    }
-    
-    // handleQtyChange = (value) =>{
-    //     // const qtySet = e*this.state.qty
-    //     // this.setState({
-    //     //     qty : qtySet
-    //     // })
-    //     console.log(value)
-    // }
-    // componentDidMount(){
-    //     const qty = this.state.qty
-    //     const harga = this.state.harga
-    //     const totalHarga = parseInt(qty) * harga
-    //     this.setState({
-    //         totalHarga:totalHarga
-    //     })
-    //     console.log(totalHarga,qty,harga)
-    // }
-    
+      });
+  };
+
+  // handleGetPesanan = async () => {
+  //   const {uid_penyedia, trxId} = this.props.route.params;
+  //   const {uid} = this.context.auth.user;
+
+  //   await this.firebaseRef
+  //               .ref(`Pengguna/Pesanan/${uid}-${uid_penyedia}`)
+  //               .on('value', (snapshot) => {
+  //                 const data = snapshot.val() ? snapshot.val() : {};
+
+  //                 console.log(data);
+  //                 this.setState({
+
+  //                 })
+
+
+  //               })
+
+  // }
+
   render() {
-      const totalHarga = parseInt(this.state.qty) * this.state.harga + this.state.biayaAdmin
+    // const totalHarga = parseInt(this.state.totalharga) + parseInt(this.state.biayaAdmin);
+    const {navigation, route} = this.props;
+    let {status, rating } = this.state;
+    const total = Object.values(this.state.dataJasa).reduce((t, {jumlah}) => t + jumlah, 0)
+    
+                  console.log("qty coba"+total)
+    let jasaKey = Object.keys(this.state.dataJasa);
+
+    console.warn(this.props.route.params)
     return (
-      <View style={{flex:1}}>
-          <Header
-            centerComponent={{ text: 'Pesanan No.12011022', style: { color: 'white',fontFamily:'arial',fontWeight:'bold',fontSize:17} }}
-            backgroundColor='#5D89F7'
-            leftComponent={
-                <TouchableOpacity>
-                    <Ionicons name="arrow-back" color="#fff" size={20}/>
-                </TouchableOpacity>
-            }
+      <View style={{flex: 1}}>
+        <Header
+          centerComponent={{
+            text: `Pesanan No.${this.state.noOder}`,
+            style: {
+              color: 'white',
+              fontFamily: 'arial',
+              fontWeight: 'bold',
+              fontSize: 17,
+              
+            },
+          }}
+          backgroundColor="#5D89F7"
+          leftComponent={
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Ionicons name="arrow-back" color="#fff" size={20} />
+            </TouchableOpacity>
+          }
         />
         <ScrollView>
-            <ImageBackground source={require('../Assets/Image/BerandaImage.png')} style={styles.header}>
-                    {/* <Image source={Logo} style={styles.logo} /> */}
-                </ImageBackground>
-            <View style={styles.container}>
-            
+          <ImageBackground
+            source={{uri : this.state.image}}
+            style={styles.header}>
+            {/* <Image source={Logo} style={styles.logo} /> */}
+          </ImageBackground>
+          <View style={styles.container}>
             <Card containerStyle={styles.cardContainer}>
-                <View style={styles.labelTokoContainer}>
-                    <TouchableOpacity>
-                        <Text style={styles.labelToko}>Juan Pale</Text>
-                        <Text style={{color:'rgba(0,0,0,0.4)'}}>Jl. Helvetia Raya No.8, Medan</Text>
-                        <Text style={{color:'rgba(0,0,0,0.9)'}}>081278289090</Text>
-                    </TouchableOpacity>
-                </View>
-                
-                <Card.Divider></Card.Divider>
+              <View style={styles.labelTokoContainer}>
+                <TouchableOpacity>
+                  <Text style={styles.labelToko}>{this.state.penyedia_jasa}</Text>
+                  <Text style={{color: 'rgba(0,0,0,0.4)'}}>
+                    {this.state.alamat}
+                  </Text>
+                  <Text style={{color: 'rgba(0,0,0,0.9)'}}>{this.state.no_telpon}</Text>
+                </TouchableOpacity>
+              </View>
+
+              <Card.Divider></Card.Divider>
+
+              <ListItem bottomDivider>
+                <ListItem.Content>
+                  
+                    {jasaKey.map((data) => (
+                         <ListItem.Title style={{fontSize: 14}}>
+                           {this.state.dataJasa[data].namaJasa}
+                         </ListItem.Title>
+                    ))}
                     
-                    <ListItem bottomDivider>
-                        <ListItem.Content>
-                        <ListItem.Title style={{fontSize:14}}>Paket Combo Cuci AC + Isi Freon AC 1/2PK R32</ListItem.Title>
-                        <ListItem.Subtitle style={{fontSize:12}}>Rp.{this.state.harga}</ListItem.Subtitle>
-                        </ListItem.Content>
-                        <ListItem.Subtitle>Qty : </ListItem.Subtitle>
-                        <ListItem.Subtitle>{this.state.qty}</ListItem.Subtitle>
-                        {/* <ListItem.Subtitle>
-                            <View style={{flexDirection:'row'}}>
-                                <TextInput
-                                    style={{width:30,borderWidth:1,height:40,borderRadius:5,fontSize:14,textAlign:'center',borderColor:'rgba(0,0,0,0.2)',margin:5}}
-                                    defaultValue={this.state.qty}
-                                    keyboardType="numeric"
-                                    maxLength={3}
-                                    onChangeText={(value)=>this.setState({qty:value})}
-                                />
-                            </View>
-                        </ListItem.Subtitle> */}
-                    </ListItem> 
-                    <Card.Divider></Card.Divider>
-                    <ListItem>
-                        <ListItem.Content>
-                            <ListItem.Subtitle>Biaya Admin : </ListItem.Subtitle>
-                        </ListItem.Content>
-                        <ListItem.Subtitle>Rp. {this.state.biayaAdmin}</ListItem.Subtitle>
-                    </ListItem>
-                    <Card.Divider></Card.Divider>
-                    <ListItem>
-                        <ListItem.Content>
-                            <ListItem.Subtitle>Total Harga : </ListItem.Subtitle>
-                        </ListItem.Content>
-                        <ListItem.Title>Rp. {totalHarga}</ListItem.Title>
-                    </ListItem>
-                    <Card.Divider></Card.Divider>
-                    <ListItem>
-                        <ListItem.Content>
-                            <ListItem.Subtitle>Status Pesanan : </ListItem.Subtitle>
-                        </ListItem.Content>
-                        <ListItem.Subtitle style={{color:this.state.status=='Selesai'? 'green' : this.state.status=='Dibatalkan'? 'red' : 'orange'}}>{this.state.status}</ListItem.Subtitle>
-                    </ListItem>
-                    <Card.Divider></Card.Divider>
-                    <TextInput 
-                        editable={false}
-                        maxLength={500}
-                        multiline
-                        numberOfLines={5}
-                        placeholder='Tidak ada catatan'
-                        onChangeText={(value)=>this.setState({catatan:value})}
-                        defaultValue={'"'+this.state.catatan+'"'}
-                        style={{paddingHorizontal:20,color:'black'}}
-                    />
-                    <ListItem>
-                        <ListItem.Content>
-                            <ListItem.Subtitle style={{color:'red'}}>Perhatian! Pesanan akan otomatis dibatalkan apabila belum dikonfirmasi dalam 1x24 jam</ListItem.Subtitle>
-                        </ListItem.Content>
-                    </ListItem>
-                    <Card.Divider></Card.Divider>
+                 
+                  <ListItem.Subtitle style={{fontSize: 12}}>
+                    Rp.{this.state.totalHarga}
+                  </ListItem.Subtitle>
+                </ListItem.Content>
+                <ListItem.Subtitle>Qty : </ListItem.Subtitle>
+                <ListItem.Subtitle>{total}</ListItem.Subtitle>
+              </ListItem>
+              <Card.Divider></Card.Divider>
+              <ListItem>
+                <ListItem.Content>
+                  <ListItem.Subtitle>Biaya Admin : </ListItem.Subtitle>
+                </ListItem.Content>
+                <ListItem.Subtitle>
+                  Rp. {this.state.biayaAdmin}
+                </ListItem.Subtitle>
+              </ListItem>
+              <Card.Divider></Card.Divider>
+              <ListItem>
+                <ListItem.Content>
+                  <ListItem.Subtitle>Total Harga : </ListItem.Subtitle>
+                </ListItem.Content>
+                <ListItem.Title>Rp. {this.state.totalHarga}</ListItem.Title>
+              </ListItem>
+              <Card.Divider></Card.Divider>
+              <ListItem>
+                <ListItem.Content>
+                  <ListItem.Subtitle>Status Pesanan : </ListItem.Subtitle>
+                </ListItem.Content>
+                <ListItem.Subtitle
+                  style={{
+                    color:
+                      this.state.status == 'Sudah Selesai'
+                        ? 'green'
+                        : this.state.status == 'Dibatalkan'
+                        ? 'red'
+                        : 'orange',
+                  }}>
+                  {this.state.status}
+                </ListItem.Subtitle>
+              </ListItem>
+              <Card.Divider></Card.Divider>
+              <TextInput
+                editable={false}
+                maxLength={500}
+                multiline
+                numberOfLines={5}
+                placeholder="Tidak ada catatan"
+                onChangeText={(value) => this.setState({catatan: value})}
+                defaultValue={'"' + this.state.catatan + '"'}
+                style={{paddingHorizontal: 20, color: 'black'}}
+              />
+      
+              <Card.Divider></Card.Divider>
 
-
-                    {/* {this.state.status='Sudah Selesai' && !this.state.rating==null? 
+              {this.state.status='Sudah Selesai' && !this.state.rating==0 ?  (
                         <View>
                             <ListItem>
                                 <ListItem.Content>
@@ -145,84 +239,95 @@ export default class PesananLangsung extends Component {
                             <View style={{padding:20}}>
                                 <Text style={{color:'rgba(0,0,0,0.7)'}}>"{this.state.ulasan}"</Text>
                             </View>
-                        </View> :
-                    this.state.status='Sudah Selesai' && this.state.ulasan==null? 
+                        </View> ) :(
+                    this.state.status='Sudah Selesai' && this.state.ulasan==0 ? ( 
                         <ListItem>
                             <ListItem.Content>
                                 <ListItem.Subtitle>Rating : </ListItem.Subtitle>
                             </ListItem.Content>
                             <ListItem.Subtitle><Rating imageSize={18} startingValue={this.state.rating} readonly style={{paddingHorizontal:18}} ratingColor='#ffdd00'/></ListItem.Subtitle>
-                        </ListItem> : 
+                        </ListItem> ):( 
                         <View></View>
-                    } */}
-                        {/* <ListItem>
-                            <ListItem.Content>
-                                <ListItem.Subtitle>Rating : </ListItem.Subtitle>
-                            </ListItem.Content>
-                            <ListItem.Subtitle><Rating imageSize={18} startingValue={this.state.rating} readonly style={{paddingHorizontal:18}} ratingColor='#ffdd00'/></ListItem.Subtitle>
-                        </ListItem> */}
-                        {/* <ListItem>
-                                <ListItem.Content>
-                                    <ListItem.Subtitle>Alasan Pembatalan : </ListItem.Subtitle>
-                                </ListItem.Content>
+                        )
+                        )}
+                        
+                        {status === 'Dibatalkan' && (
+                          <View>
+                            <ListItem>
+                                  <ListItem.Content>
+                                      <ListItem.Subtitle>Alasan Pembatalan : </ListItem.Subtitle>
+                                  </ListItem.Content>
                             </ListItem>
                             <View style={{padding:20}}>
                                 <Text style={{color:'rgba(0,0,0,0.7)'}}>"{this.state.alasanPembatalan}"</Text>
-                            </View> */}
-                    <TouchableOpacity style={styles.button3}>
-                        <Text style={styles.buttonText}>Chat Pelanggan</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.button2}>
-                        <Text style={styles.buttonText}>Konfirmasi Pesanan</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.button4}>
-                        <Text style={styles.buttonText}>Tolak Pesanan</Text>
-                    </TouchableOpacity>
-            {/* {this.state.status=='Belum Dikonfirmasi' ? 
+                            </View>
+                          </View>
+                        )}
+                        
+              
+              
+
+              { status === 'Belum Dikonfirmasi' || status === 'Dalam Proses' &&(
                 <View>
-                <TouchableOpacity style={styles.button2}>
+                <TouchableOpacity style={styles.button2} onPress={() =>
+                  navigation.navigate('ChatDetail', {
+                    user_id: route.params.uid_penyedia,
+                  })
+                }>
                     <Text style={styles.buttonText}>Tanya Tukang</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.button}>
+                <TouchableOpacity style={styles.button} onPress={ () => navigation.navigate('BatalkanPesanan', 
+                    this.props.route.params
+                )}>
                     <Text style={styles.buttonText}>Batalkan Pesanan</Text>
                 </TouchableOpacity>
-                </View> : 
-            this.state.status=='Dalam Proses' ? 
-                <View>
-                <TouchableOpacity style={styles.button2}>
-                    <Text style={styles.buttonText}>Tanya Tukang</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.button}>
-                    <Text style={styles.buttonText}>Batalkan Pesanan</Text>
-                </TouchableOpacity>
-                </View> :
-            this.state.status=='Dibatalkan' ? 
-                <TouchableOpacity style={styles.button2}>
-                    <Text style={styles.buttonText}>Tanya Tukang</Text>
-                </TouchableOpacity> :
-            this.state.status=='Sudah Selesai' && !this.state.rating==null?
-                <View>
-                    <TouchableOpacity style={styles.button2}>
+                </View> 
+              )}
+              {status === 'Dibatalkan' && (
+                  <TouchableOpacity
+                style={styles.button3}
+                onPress={() =>
+                  navigation.navigate('ChatDetail', {
+                    user_id: route.params.uid_penyedia,
+                  })
+                }>
+                <Text style={styles.buttonText}>Tanya Tukang</Text>
+              </TouchableOpacity>
+              )}
+              {status === 'Sudah Selesai' && !rating === 0 ? (
+                 <View>
+                    <TouchableOpacity style={styles.button2} onPress={() =>
+                  navigation.navigate('ChatDetail', {
+                    user_id: route.params.uid_penyedia,
+                  })
+                }>
                         <Text style={styles.buttonText}>Tanya Tukang</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.button3}>
+                    <TouchableOpacity style={styles.button2} onPress={() => navigation.navigate('TulisUlasan' , this.props.route.params)}>
                         <Text style={styles.buttonText}>Beri Rating dan Ulasan</Text>
                     </TouchableOpacity>
-                </View> : 
-                    <TouchableOpacity style={styles.button2}>
+                </View>
+              ) : (
+                <View>
+                    <TouchableOpacity style={styles.button2} onPress={() =>
+                  navigation.navigate('ChatDetail', {
+                    user_id: route.params.uid_penyedia,
+                  })
+                }>
                         <Text style={styles.buttonText}>Tanya Tukang</Text>
                     </TouchableOpacity>
-            } */}
-            {/* <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText}>Batalkan Pesanan</Text>
-            </TouchableOpacity> */}
-            {/* <TouchableOpacity style={styles.button3}>
-                <Text style={styles.buttonText}>Beri Rating dan Ulasan</Text>
-            </TouchableOpacity> */}
+                    <TouchableOpacity style={styles.button3}
+                      onPress={() => navigation.navigate('Komplain', this.props.route.params)}
+                    >
+                        <Text style={styles.buttonText}>Komplain</Text>
+                    </TouchableOpacity>
+                </View>
+
+              )}
+        
             </Card>
-            
-            </View>
-            </ScrollView>
+          </View>
+        </ScrollView>
       </View>
     );
   }
@@ -230,83 +335,83 @@ export default class PesananLangsung extends Component {
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 const styles = StyleSheet.create({
-    container : {
-        flex:1,
-        height:'100%'
+  container: {
+    flex: 1,
+    height: '100%',
+  },
+  labelToko: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  cardContainer: {
+    borderRadius: 15,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 3,
     },
-    labelToko : {
-        fontSize:16,
-        fontWeight:'bold'
+    shadowOpacity: 0.29,
+    shadowRadius: 4.65,
+    elevation: 7,
+    marginTop: -windowHeight * 0.07,
+  },
+  cardContainer2: {
+    borderRadius: 15,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 3,
     },
-    cardContainer :{
-        borderRadius:15,
-        backgroundColor: 'white',
-        borderRadius: 10,
-        shadowColor: '#000',
-        shadowOffset: {
-        width: 0,
-        height: 3,
-        },
-        shadowOpacity: 0.29,
-        shadowRadius: 4.65,
-        elevation: 7,
-        marginTop: -windowHeight * 0.07,
-    }, 
-    cardContainer2 :{
-        borderRadius:15,
-        backgroundColor: 'white',
-        borderRadius: 10,
-        shadowColor: '#000',
-        shadowOffset: {
-        width: 0,
-        height: 3,
-        },
-        shadowOpacity: 0.29,
-        shadowRadius: 4.65,
-        elevation: 7,
-    },
-    labelTokoContainer : {
-        flexDirection:'row',
-        flexWrap: 'wrap',
-    },
-    button: {
-        width:'95%',
-        backgroundColor:'red',
-         borderRadius: 25,
-          marginVertical: 10,
-          paddingVertical: 13,
-      },
-      button2: {
-        width:'95%',
-        backgroundColor:'green',
-         borderRadius: 25,
-          marginVertical: 10,
-          paddingVertical: 13,
-      },
-      button3: {
-        width:'95%',
-        backgroundColor:'#ff3a03',
-         borderRadius: 25,
-          marginVertical: 10,
-          paddingVertical: 13,
-      },
-      button4: {
-        width:'95%',
-        backgroundColor:'red',
-         borderRadius: 25,
-          marginVertical: 10,
-          paddingVertical: 13,
-      },
-    buttonText: {
-        fontSize:16,
-        fontWeight:'500',
-        color:'#ffffff',
-        textAlign:'center',
-    },
-    header: {
-        width: windowWidth,
-        height: windowHeight * 0.3,
-        paddingHorizontal: 30,
-        paddingTop: 10,
-      },
-})
+    shadowOpacity: 0.29,
+    shadowRadius: 4.65,
+    elevation: 7,
+  },
+  labelTokoContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  button: {
+    width: '95%',
+    backgroundColor: 'red',
+    borderRadius: 25,
+    marginVertical: 10,
+    paddingVertical: 13,
+  },
+  button2: {
+    width: '95%',
+    backgroundColor: 'green',
+    borderRadius: 25,
+    marginVertical: 10,
+    paddingVertical: 13,
+  },
+  button3: {
+    width: '95%',
+    backgroundColor: '#ff3a03',
+    borderRadius: 25,
+    marginVertical: 10,
+    paddingVertical: 13,
+  },
+  button4: {
+    width: '95%',
+    backgroundColor: 'red',
+    borderRadius: 25,
+    marginVertical: 10,
+    paddingVertical: 13,
+  },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#ffffff',
+    textAlign: 'center',
+  },
+  header: {
+    width: windowWidth,
+    height: windowHeight * 0.3,
+    paddingHorizontal: 30,
+    paddingTop: 10,
+  },
+});
