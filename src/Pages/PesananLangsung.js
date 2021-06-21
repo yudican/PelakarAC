@@ -99,7 +99,7 @@ export default class PesananLangsung extends Component {
       totalHarga: totalHarga,
       tanggalPesan: new Date().getTime(),
       alamatAlternatif: alamatAlternatif,
-      status: 'pending',
+      status: 'Belum Dikonfirmasi',
       rating: 0,
       ulasan: '',
     };
