@@ -28,3 +28,10 @@ export const chatTime = (time) => {
 
   return timeChat;
 };
+
+export const getDateOrder = (time, prefix = '-') => {
+  let date = new Date(time);
+  const dateOrder = `${date.getDate()}${prefix}${date.getMonth()}${prefix}${date.getFullYear()}`;
+
+  return dateOrder;
+};
