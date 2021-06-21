@@ -89,7 +89,9 @@ constructor(props) {
       {favoriteKey.length > 0 ?(
         favoriteKey.map((key) => (
           <Swipeable  rightButtons={(rightButtons)} onRightActionRelease={() => this.handleRemoveFavorite(key)}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() =>
+                      navigation.navigate('TokoDeatil', {uid_penyedia: key})
+                    }>
             <ListItem bottomDivider>
                 <Avatar  source={{uri : this.state.favorite[key].spanduk}}
                         rounded size='small' titleStyle={{color:'orange'}}/>

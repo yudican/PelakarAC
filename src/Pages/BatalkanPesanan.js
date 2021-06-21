@@ -2,28 +2,99 @@ import React, { Component } from 'react';
 import {View,TouchableOpacity,Image,ScrollView,Text,StyleSheet,TextInput,Button,ImageBackground,Dimensions} from 'react-native'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import {Header, ListItem, Avatar, Card, CheckBox,Icon,SearchBar,Rating} from 'react-native-elements'
+import database from '@react-native-firebase/database';
+import {RootContext} from '../Auth/Navigation/Context';
+import { FlatList } from 'react-native';
+
+
 
 export default class BatalkanPesanan extends Component{
+    firebaseRef = database();
+    static contextType = RootContext;
+
+
     constructor(props){
         super(props)
         this.state={
             // search:''
+            penyedia_jasa : '',
+            alamat : '',
+            no_telpon : '',
             qty : '1',
-            harga : 250000,
+            harga : null,
             totalHarga : 0,
-            biayaAdmin:2500,
-            catatan:''
+            biayaAdmin: null,
+            catatan:'',
+            jasa:[]
         }
     }
+
+
+    componentDidMount() {
+        this.handleGetOrder()
+    }
+
+    handleGetOrder = async () => {
+    const {uid_penyedia, noOrder} = this.props.route.params;
+    console.warn(uid_penyedia)
+    const {uid} = this.context.auth.user;
+    await this.firebaseRef
+      .ref(`Pengguna/Pesanan/${noOrder}`)
+      .on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          let jasaKey = Object.keys(data.Jasa);
+          this.firebaseRef
+                .ref(`Pengguna/Penyedia_Jasa/${uid_penyedia}`)
+                .on('value', (snap) => {
+                    const dataPenyedia = snap.val() ? snap.val() : {};
+
+                  this.setState({
+                      
+                      totalHarga : data.totalHarga,
+                      biayaAdmin : data.biayaAdmin,
+                      rating : data.rating,
+                      dataJasa: data.Jasa,
+                      penyedia_jasa : dataPenyedia.nama,
+                      alamat : dataPenyedia.alamat,
+                      no_telpon : dataPenyedia.no_telp,
+                      jasa:Object.values(data.Jasa)
+                    });
+                  
+                })
+        }
+      });
+  };
+
+  handleBatal = async () => {
+    const {uid_penyedia, noOrder} = this.props.route.params;
+    const {uid} = this.context.auth.user;
+    await this.firebaseRef
+      .ref(`Pengguna/Pesanan/${noOrder}`)
+      .update({
+        alasanPembatalan : this.state.catatan,
+        status : 'Dibatalkan'
+      }).then( () => this.props.navigation.goBack())
+
+  }
+
+
+
+
+
     render(){
-        const totalHarga = parseInt(this.state.qty) * this.state.harga + this.state.biayaAdmin
+        const { navigation } = this.props;
+        const { totalHarga ,jasa} = this.state;
+
+       
+        
         return(
             <View style={styles.container}>
                 <Header
                     centerComponent={{ text: 'Pesanan No.12011022', style: { color: 'white',fontFamily:'arial',fontWeight:'bold',fontSize:17} }}
                     backgroundColor='#5D89F7'
                     leftComponent={
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={() => navigation.goBack()}>
                             <Ionicons name="arrow-back" color="#fff" size={20}/>
                         </TouchableOpacity>
                     }
@@ -35,36 +106,28 @@ export default class BatalkanPesanan extends Component{
                         <Card containerStyle={styles.cardContainer}>
                             <View style={styles.labelTokoContainer}>
                                 <TouchableOpacity>
-                                    <Text style={styles.labelToko}>Ari Poker</Text>
+                                    <Text style={styles.labelToko}>{this.state.penyedia_jasa}</Text>
                                     <View style={{flexDirection:'row'}}>
                                         <Text style={{color:'#ffd500',fontWeight:'700',fontSize:16}}>4.7/5</Text>
                                         <Rating imageSize={18} startingValue={4.7} readonly fractions={1} style={{paddingHorizontal:18}} ratingColor='#ffdd00'/>
                                     </View>
-                                    <Text style={{color:'rgba(0,0,0,0.4)'}}>Jl. Helvetia Raya No.8, Medan</Text>
+                                    <Text style={{color:'rgba(0,0,0,0.4)'}}>{this.state.alamat}</Text>
                                 </TouchableOpacity>
                             </View>
                             
                             <Card.Divider></Card.Divider>
                                 
-                                <ListItem bottomDivider>
+                                <FlatList data={jasa} renderItem={({item}) => (
+                                    <ListItem bottomDivider>
                                     <ListItem.Content>
-                                    <ListItem.Title style={{fontSize:14}}>Paket Combo Cuci AC + Isi Freon AC 1/2PK R32</ListItem.Title>
-                                    <ListItem.Subtitle style={{fontSize:12}}>Rp.{this.state.harga}</ListItem.Subtitle>
+                                    <ListItem.Title style={{fontSize:14}}>{item.namaJasa}</ListItem.Title>
+                                    <ListItem.Subtitle style={{fontSize:12}}>Rp.{item.hargaJasa}</ListItem.Subtitle>
                                     </ListItem.Content>
                                     <ListItem.Subtitle>Qty : </ListItem.Subtitle>
-                                    <ListItem.Subtitle>{this.state.qty}</ListItem.Subtitle>
-                                    {/* <ListItem.Subtitle>
-                                        <View style={{flexDirection:'row'}}>
-                                            <TextInput
-                                                style={{width:30,borderWidth:1,height:40,borderRadius:5,fontSize:14,textAlign:'center',borderColor:'rgba(0,0,0,0.2)',margin:5}}
-                                                defaultValue={this.state.qty}
-                                                keyboardType="numeric"
-                                                maxLength={3}
-                                                onChangeText={(value)=>this.setState({qty:value})}
-                                            />
-                                        </View>
-                                    </ListItem.Subtitle> */}
+                                    <ListItem.Subtitle>{item.jumlah}</ListItem.Subtitle>
+                                   
                                 </ListItem> 
+                                )}/>
                                 <Card.Divider></Card.Divider>
                                 <ListItem>
                                     <ListItem.Content>
@@ -91,7 +154,7 @@ export default class BatalkanPesanan extends Component{
                                     style={{paddingHorizontal:20}}
                                 />
                                 <Card.Divider></Card.Divider>
-                                <TouchableOpacity style={styles.button}>
+                                <TouchableOpacity style={styles.button} onPress={() => this.handleBatal()}>
                                     <Text style={styles.buttonText}>Tolak Pesanan</Text>
                                 </TouchableOpacity>
                         </Card>

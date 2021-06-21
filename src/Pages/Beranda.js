@@ -13,6 +13,7 @@ export default class Beranda extends Component {
     };
   }
   render() {
+
     return (
       <View style={{flex: 1}}>
         <Header
@@ -27,7 +28,9 @@ export default class Beranda extends Component {
           }}
           backgroundColor="#5D89F7"
           rightComponent={
-            <Ionicons name="notifications" color="#fff" size={20} />
+            <TouchableOpacity onPress={()=> this.props.navigation.navigate('Notifikasi')}>
+              <Ionicons name="notifications" color="#fff" size={20} />
+            </TouchableOpacity>
           }
         />
         <SearchBar
@@ -58,7 +61,7 @@ export default class Beranda extends Component {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.categoryBtn}
-              onPress={() => console.log('Menu2')}>
+              onPress={() => this.props.navigation.navigate('ListJasaRekomendasi')}>
               <Icon reverse name="tag" type="evilicon" color="orange" />
               <Text style={{textAlign: 'center'}}>Rekomendasi</Text>
             </TouchableOpacity>

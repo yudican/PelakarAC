@@ -42,7 +42,7 @@ export default class ListJasaTerdekat extends Component {
   }
 
   handleGetPenyediaJasa = async () => {
-    this.firebaseRef
+  await this.firebaseRef
       .ref('/Pengguna/Penyedia_Jasa')
       .on('value', (querySnapShot) => {
         let data = querySnapShot.val() ? querySnapShot.val() : {};
@@ -67,7 +67,7 @@ export default class ListJasaTerdekat extends Component {
     this.firebaseRef
       .ref(`Pengguna/Pelanggan/${uid}/Keranjang/${uid_penyedia}/Data_Jasa`)
       .once('value', (snapshot) => {
-        const data = snapshot.val();
+        const data = snapshot.val() ? snapshot.val() : {};
         if (data) {
           addJasaToCart(jasa, jasa_id, uid_penyedia, uid);
           this.firebaseRef.ref().off();

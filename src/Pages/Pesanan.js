@@ -31,36 +31,42 @@ export default class Pesanan extends Component {
   handleGetPesanan = async () => {
     const {uid} = this.context.auth.user;
     await this.firebaseRef.ref('Pengguna/Pesanan').on('value', (snapshot) => {
-      if (snapshot.val()) {
-        const orderId = Object.keys(snapshot.val());
-        const orderData = Object.values(snapshot.val());
-        orderId.map((ownUid) => {
-          console.log(ownUid);
-          ownUid.split('-').map((key) => {
-            if (key === uid) {
-              this.firebaseRef
-                .ref('Pengguna/Penyedia_Jasa/' + ownUid.split('-')[1])
-                .on('value', (snapshots) => {
-                  const seller = snapshots.val();
-                  console.log(orderData);
-                  this.setState((prevState) => ({
-                    pesanan: [
-                      {
-                        ...orderData[0],
-                        merk: seller.merk,
-                        uid_penyedia: ownUid.split('-')[1],
-                      },
-                    ],
-                  }));
-                });
-            }
-          });
+      const order = snapshot.val();
+      const orderData = Object.values(order);
+
+      const orders = orderData.filter(
+        (itemOrder) => itemOrder.uidPelanggan === uid,
+      );
+      this.setState({pesanan: []});
+
+      if (orders.length > 0) {
+        orders.map((item) => {
+          this.firebaseRef
+            .ref('Pengguna/Penyedia_Jasa/' + item.uidPenyedia)
+            .on('value', (snapshots) => {
+              const seller = snapshots.val();
+              // const items = Object.values(item)
+              // console.log("data item" + items);
+              this.setState((prevState) => ({
+                pesanan: [
+                  ...prevState.pesanan,
+                  {
+                    ...item,
+                    merk: seller.merk,
+                    uid_penyedia: item.uidPenyedia,
+                  },
+                ],
+              }));
+            });
         });
       }
     });
   };
   render() {
     const {pesanan} = this.state;
+
+    console.log(pesanan);
+
     const {navigation} = this.props;
     return (
       <View style={{flex: 1}}>

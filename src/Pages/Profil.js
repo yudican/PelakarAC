@@ -48,6 +48,7 @@ export default class Profil extends Component {
 
   render() {
     const {navigation} = this.props;
+    const {logout} = this.context.auth;
     const {no_telp, profile_photo, alamat, nama} = this.state;
     return (
       <View style={{flex: 1}}>
@@ -139,8 +140,7 @@ export default class Profil extends Component {
                   <ListItem.Chevron />
                 </ListItem>
               </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => navigation.navigate('Favorite')}>
+              <TouchableOpacity onPress={() => navigation.navigate('Favorite')}>
                 <ListItem bottomDivider>
                   <Icon name="heart" type="foundation" color="red" />
                   <ListItem.Content>
@@ -149,7 +149,8 @@ export default class Profil extends Component {
                   <ListItem.Chevron />
                 </ListItem>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => navigation.navigate('Keranjang')}>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('Keranjang')}>
                 <ListItem bottomDivider>
                   <Icon name="cart" type="fontisto" color="orange" />
                   <ListItem.Content>
@@ -159,7 +160,7 @@ export default class Profil extends Component {
                 </ListItem>
               </TouchableOpacity>
 
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => logout()}>
                 <ListItem>
                   <Icon name="logout" type="antdesign" color="red" />
                   <ListItem.Content>

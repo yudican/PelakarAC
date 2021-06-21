@@ -1,43 +1,118 @@
+import database from '@react-native-firebase/database';
 import React, {Component} from 'react';
 import {
-  View,
-  TouchableOpacity,
-  Image,
-  ScrollView,
-  Text,
-  StyleSheet,
-  TextInput,
-  Button,
-  ImageBackground,
   Dimensions,
+  FlatList,
+  ImageBackground,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
+import {Card, Header, ListItem, Rating} from 'react-native-elements';
+import uuid from 'react-native-uuid';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {
-  Header,
-  ListItem,
-  Avatar,
-  Card,
-  CheckBox,
-  Icon,
-  SearchBar,
-  Rating,
-  AirbnbRating,
-} from 'react-native-elements';
+import {RootContext} from '../Auth/Navigation/Context';
 
 export default class Komplain extends Component {
+  firebaseRef = database();
+  static contextType = RootContext;
+
   constructor(props) {
     super(props);
     this.state = {
       // search:''
       qty: '1',
-      harga: 250000,
+      harga: 0,
       totalHarga: 0,
-      biayaAdmin: 2500,
+      biayaAdmin: 0,
+      penyedia_jasa: '',
+      alamat: '',
+      no_telpon: '',
       komplain: '',
-      rating: 0,
+      image: '',
+      jasa: [],
+      user: [],
     };
   }
 
+  componentDidMount() {
+    this.handleGetOrder();
+    this.handleGetUser();
+  }
+
+  handleGetOrder = async () => {
+    const {uid_penyedia, noOrder} = this.props.route.params;
+    console.warn(uid_penyedia);
+    const {uid} = this.context.auth.user;
+    await this.firebaseRef
+      .ref(`Pengguna/Pesanan/${noOrder}`)
+      .on('value', (snapshot) => {
+        const data = snapshot.val() ? snapshot.val() : {};
+        if (data) {
+          let jasaKey = Object.keys(data.Jasa);
+          this.firebaseRef
+            .ref(`Pengguna/Penyedia_Jasa/${uid_penyedia}`)
+            .on('value', (snap) => {
+              const dataPenyedia = snap.val() ? snap.val() : {};
+
+              this.setState({
+                totalHarga: data.totalHarga,
+                biayaAdmin: data.biayaAdmin,
+                penyedia_jasa: dataPenyedia.nama,
+                image: dataPenyedia.spanduk,
+                alamat: dataPenyedia.alamat,
+                no_telpon: dataPenyedia.no_telp,
+                jasa: Object.values(data.Jasa),
+              });
+            });
+        }
+      });
+  };
+
+  handleGetUser = async () => {
+    const {uid} = this.context.auth.user;
+    await this.firebaseRef
+      .ref(`Pengguna/Pelanggan/${uid}`)
+      .on('value', (snap) => {
+        const users = snap.val() || {};
+        this.setState({
+          user: users,
+        });
+      });
+  };
+
+  handlePosting = async () => {
+    const {uid_penyedia, noOrder} = this.props.route.params;
+    const {uid} = this.context.auth.user;
+    const {addNotification} = this.context.app;
+
+    await this.firebaseRef.ref(`Pengguna/Komplain/${uuid.v4()}`).set({
+      komplain: this.state.komplain,
+      uid_pesanan: noOrder,
+      uid_pelanggan: uid,
+      uid_penyedia: uid_penyedia,
+      tanggal: new Date().getTime(),
+      status: 'Pelanggan',
+    });
+
+    const {user} = this.state;
+
+    const notificationData = {
+      noOrder: noOrder,
+      title: this.state.komplain,
+      waktu: new Date().getTime(),
+      nama: user.nama,
+      profile_photo: user.profile_photo,
+      isRead: false,
+    };
+
+    addNotification(notificationData, uid_penyedia);
+
+    this.props.navigation.goBack();
+  };
   // ratingUpdate(rating){
   //     this.setState({
   //         rating: rating
@@ -45,8 +120,9 @@ export default class Komplain extends Component {
   // }
 
   render() {
-    const totalHarga =
-      parseInt(this.state.qty) * this.state.harga + this.state.biayaAdmin;
+    const {navigation} = this.props;
+    const {totalHarga, jasa} = this.state;
+
     return (
       <View style={styles.container}>
         <Header
@@ -61,7 +137,7 @@ export default class Komplain extends Component {
           }}
           backgroundColor="#5D89F7"
           leftComponent={
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
               <Ionicons name="arrow-back" color="#fff" size={20} />
             </TouchableOpacity>
           }
@@ -74,7 +150,9 @@ export default class Komplain extends Component {
             <Card containerStyle={styles.cardContainer}>
               <View style={styles.labelTokoContainer}>
                 <TouchableOpacity>
-                  <Text style={styles.labelToko}>Ari Poker</Text>
+                  <Text style={styles.labelToko}>
+                    {this.state.penyedia_jasa}
+                  </Text>
                   <View style={{flexDirection: 'row'}}>
                     <Text
                       style={{
@@ -94,36 +172,30 @@ export default class Komplain extends Component {
                     />
                   </View>
                   <Text style={{color: 'rgba(0,0,0,0.4)'}}>
-                    Jl. Helvetia Raya No.8, Medan
+                    {this.state.alamat}
                   </Text>
                 </TouchableOpacity>
               </View>
 
               <Card.Divider></Card.Divider>
 
-              <ListItem bottomDivider>
-                <ListItem.Content>
-                  <ListItem.Title style={{fontSize: 14}}>
-                    Paket Combo Cuci AC + Isi Freon AC 1/2PK R32
-                  </ListItem.Title>
-                  <ListItem.Subtitle style={{fontSize: 12}}>
-                    Rp.{this.state.harga}
-                  </ListItem.Subtitle>
-                </ListItem.Content>
-                <ListItem.Subtitle>Qty : </ListItem.Subtitle>
-                <ListItem.Subtitle>{this.state.qty}</ListItem.Subtitle>
-                {/* <ListItem.Subtitle>
-                                        <View style={{flexDirection:'row'}}>
-                                            <TextInput
-                                                style={{width:30,borderWidth:1,height:40,borderRadius:5,fontSize:14,textAlign:'center',borderColor:'rgba(0,0,0,0.2)',margin:5}}
-                                                defaultValue={this.state.qty}
-                                                keyboardType="numeric"
-                                                maxLength={3}
-                                                onChangeText={(value)=>this.setState({qty:value})}
-                                            />
-                                        </View>
-                                    </ListItem.Subtitle> */}
-              </ListItem>
+              <FlatList
+                data={jasa}
+                renderItem={({item}) => (
+                  <ListItem bottomDivider>
+                    <ListItem.Content>
+                      <ListItem.Title style={{fontSize: 14}}>
+                        {item.namaJasa}
+                      </ListItem.Title>
+                      <ListItem.Subtitle style={{fontSize: 12}}>
+                        Rp.{item.hargaJasa}
+                      </ListItem.Subtitle>
+                    </ListItem.Content>
+                    <ListItem.Subtitle>Qty : </ListItem.Subtitle>
+                    <ListItem.Subtitle>{item.jumlah}</ListItem.Subtitle>
+                  </ListItem>
+                )}
+              />
               <Card.Divider></Card.Divider>
               <ListItem>
                 <ListItem.Content>
@@ -152,7 +224,9 @@ export default class Komplain extends Component {
                 style={{paddingHorizontal: 20}}
               />
               <Card.Divider></Card.Divider>
-              <TouchableOpacity style={styles.button}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => this.handlePosting()}>
                 <Text style={styles.buttonText}>Posting</Text>
               </TouchableOpacity>
             </Card>
