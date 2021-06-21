@@ -51,9 +51,9 @@ export default class PesananDetail extends Component {
     const {uid_penyedia, noOrder} = this.props.route.params;
     const {uid} = this.context.auth.user;
     await this.firebaseRef
-      .ref(`Pengguna/Pesanan/${uid}-${uid_penyedia}`)
+      .ref(`Pengguna/Pesanan/${noOrder}`)
       .on('value', (snapshot) => {
-        const data = snapshot.val();
+        const data = snapshot.val() || {};
         if (data) {
           let jasaKey = Object.keys(data.Jasa);
           this.firebaseRef
@@ -61,7 +61,7 @@ export default class PesananDetail extends Component {
                 .on('value', (snap) => {
                     const dataPenyedia = snap.val() ? snap.val() : {};
 
-                  console.log('total harga' + data.totalHarga)
+                  
                   
                   this.setState({
                       uidPenyedia : uid_penyedia,
@@ -90,32 +90,13 @@ export default class PesananDetail extends Component {
       });
   };
 
-  // handleGetPesanan = async () => {
-  //   const {uid_penyedia, trxId} = this.props.route.params;
-  //   const {uid} = this.context.auth.user;
 
-  //   await this.firebaseRef
-  //               .ref(`Pengguna/Pesanan/${uid}-${uid_penyedia}`)
-  //               .on('value', (snapshot) => {
-  //                 const data = snapshot.val() ? snapshot.val() : {};
-
-  //                 console.log(data);
-  //                 this.setState({
-
-  //                 })
-
-
-  //               })
-
-  // }
 
   render() {
     // const totalHarga = parseInt(this.state.totalharga) + parseInt(this.state.biayaAdmin);
     const {navigation, route} = this.props;
     let {status, rating } = this.state;
     const total = Object.values(this.state.dataJasa).reduce((t, {jumlah}) => t + jumlah, 0)
-    
-                  console.log("qty coba"+total)
     let jasaKey = Object.keys(this.state.dataJasa);
 
     console.warn(this.props.route.params)
@@ -267,7 +248,24 @@ export default class PesananDetail extends Component {
               
               
 
-              { status === 'Belum Dikonfirmasi' || status === 'Dalam Proses' &&(
+              { status === 'Belum Dikonfirmasi' && (
+                <View>
+                <TouchableOpacity style={styles.button2} onPress={() =>
+                  navigation.navigate('ChatDetail', {
+                    user_id: route.params.uid_penyedia,
+                  })
+                }>
+                    <Text style={styles.buttonText}>Tanya Tukang</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={ () => navigation.navigate('BatalkanPesanan', 
+                    this.props.route.params
+                )}>
+                    <Text style={styles.buttonText}>Batalkan Pesanan</Text>
+                </TouchableOpacity>
+                </View> 
+              )}
+
+              { status === 'Dalam Proses' && (
                 <View>
                 <TouchableOpacity style={styles.button2} onPress={() =>
                   navigation.navigate('ChatDetail', {
@@ -294,7 +292,7 @@ export default class PesananDetail extends Component {
                 <Text style={styles.buttonText}>Tanya Tukang</Text>
               </TouchableOpacity>
               )}
-              {status === 'Sudah Selesai' && !rating === 0 ? (
+              {status === 'Sudah Selesai' && rating === 0 ? (
                  <View>
                     <TouchableOpacity style={styles.button2} onPress={() =>
                   navigation.navigate('ChatDetail', {
@@ -306,9 +304,16 @@ export default class PesananDetail extends Component {
                     <TouchableOpacity style={styles.button2} onPress={() => navigation.navigate('TulisUlasan' , this.props.route.params)}>
                         <Text style={styles.buttonText}>Beri Rating dan Ulasan</Text>
                     </TouchableOpacity>
+                    <TouchableOpacity style={styles.button3}
+                      onPress={() => navigation.navigate('Komplain', this.props.route.params)}
+                    >
+                        <Text style={styles.buttonText}>Komplain</Text>
+                    </TouchableOpacity>
                 </View>
-              ) : (
-                <View>
+              ) : null}
+
+              {status === 'Sudah Selesai' && rating > 0 ? (
+                 <View>
                     <TouchableOpacity style={styles.button2} onPress={() =>
                   navigation.navigate('ChatDetail', {
                     user_id: route.params.uid_penyedia,
@@ -316,14 +321,14 @@ export default class PesananDetail extends Component {
                 }>
                         <Text style={styles.buttonText}>Tanya Tukang</Text>
                     </TouchableOpacity>
+                    
                     <TouchableOpacity style={styles.button3}
                       onPress={() => navigation.navigate('Komplain', this.props.route.params)}
                     >
                         <Text style={styles.buttonText}>Komplain</Text>
                     </TouchableOpacity>
                 </View>
-
-              )}
+              ) : null}
         
             </Card>
           </View>

@@ -32,15 +32,36 @@ export default class Notifikasi extends Component {
 
   handleGetNotifications = async () => {
     const {uid} = this.context.auth.user;
+    
     await this.firebaseRef
       .ref(`Pengguna/Pelanggan/${uid}/Notifikasi`)
-      .on('value', (snapshot) => {
+      .once('value', (snapshot) => {
+        const notificationsKey = Object.keys(snapshot.val());
         const notifications = Object.values(snapshot.val());
-        this.setState({notifications});
+        const data = snapshot.val()
+
+        notifications.map((item,i) => {
+            this.setState(prevState => ({notifications: [
+              ...prevState.notifications,
+              {
+                ...item,_id:notificationsKey[i]
+              }
+            ]}));
+          })
+        
       });
   };
 
+
+  handleRemoveNotifikasi =  async(id) => {
+      const {uid} = this.context.auth.user;
+      await this.firebaseRef
+      .ref('Pengguna/Pelanggan/' + uid +'/Notifikasi/'+id).remove()
+  }
+
   render() {
+     let notificationKey = Object.keys(this.state.notifications);
+
     return (
       <View>
         <Header
@@ -61,10 +82,17 @@ export default class Notifikasi extends Component {
           }
         />
         <ScrollView>
+          {/* {notificationKey.length > 0 ? (
+            notificationKey.map((key) (
+
+            ))
+          ) : (
+            <Text>Nothing</Text>
+          )} */}
           <FlatList
             data={this.state.notifications}
-            renderItem={({item}) => (
-              <Swipeable rightButtons={rightButtons}>
+            renderItem={({item , index}) => (
+              <Swipeable rightButtons={rightButtons} onRightActionRelease={() => this.handleRemoveNotifikasi(item._id)}>
                 <TouchableOpacity>
                   <ListItem bottomDivider>
                     {item.profile_photo ? (

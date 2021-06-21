@@ -39,7 +39,7 @@ export default class BatalkanPesanan extends Component{
     console.warn(uid_penyedia)
     const {uid} = this.context.auth.user;
     await this.firebaseRef
-      .ref(`Pengguna/Pesanan/${uid}-${uid_penyedia}`)
+      .ref(`Pengguna/Pesanan/${noOrder}`)
       .on('value', (snapshot) => {
         const data = snapshot.val();
         if (data) {
@@ -70,7 +70,7 @@ export default class BatalkanPesanan extends Component{
     const {uid_penyedia, noOrder} = this.props.route.params;
     const {uid} = this.context.auth.user;
     await this.firebaseRef
-      .ref(`Pengguna/Pesanan/${uid}-${uid_penyedia}`)
+      .ref(`Pengguna/Pesanan/${noOrder}`)
       .update({
         alasanPembatalan : this.state.catatan,
         status : 'Dibatalkan'

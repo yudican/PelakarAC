@@ -41,9 +41,9 @@ export default class TulisUlasan extends Component{
     console.warn(uid_penyedia)
     const {uid} = this.context.auth.user;
     await this.firebaseRef
-      .ref(`Pengguna/Pesanan/${uid}-${uid_penyedia}`)
+      .ref(`Pengguna/Pesanan/${noOrder}`)
       .on('value', (snapshot) => {
-        const data = snapshot.val();
+        const data = snapshot.val() || {};
         if (data) {
           let jasaKey = Object.keys(data.Jasa);
           this.firebaseRef
@@ -71,7 +71,7 @@ export default class TulisUlasan extends Component{
     const {uid_penyedia, noOrder} = this.props.route.params;
     const {uid} = this.context.auth.user;
     await this.firebaseRef
-      .ref(`Pengguna/Pesanan/${uid}-${uid_penyedia}`)
+      .ref(`Pengguna/Pesanan/${noOrder}`)
       .update({
         ulasan : this.state.catatan,
         rating : this.state.rating

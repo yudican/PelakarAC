@@ -157,10 +157,10 @@ export const AppProvider = ({children}) => {
             );
           }
         },
-        addOrderRequest: async (data, jasa, uid, uid_penyedia) => {
+        addOrderRequest: async (data, jasa, uid, uid_penyedia, trxId) => {
           await db.app
             .database()
-            .ref(`Pengguna/Pesanan/${uid}-${uid_penyedia}`)
+            .ref(`Pengguna/Pesanan/${trxId}`)
             .set(data)
             .then((data) => {
               let jasaKey = Object.keys(jasa);
@@ -176,7 +176,7 @@ export const AppProvider = ({children}) => {
                   db.app
                     .database()
                     .ref(
-                      `Pengguna/Pesanan/${uid}-${uid_penyedia}/Jasa/${dataKey}`,
+                      `Pengguna/Pesanan/${trxId}/Jasa/${dataKey}`,
                     )
                     .set(dataJasa)
                     .then((data) => {

@@ -28,7 +28,9 @@ export default class Beranda extends Component {
           }}
           backgroundColor="#5D89F7"
           rightComponent={
-            <Ionicons name="notifications" color="#fff" size={20} />
+            <TouchableOpacity onPress={()=> this.props.navigation.navigate('Notifikasi')}>
+              <Ionicons name="notifications" color="#fff" size={20} />
+            </TouchableOpacity>
           }
         />
         <SearchBar

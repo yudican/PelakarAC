@@ -27,11 +27,13 @@ export default class Komplain extends Component{
             komplain:'',
             image : '',
             jasa : [],
+            user : []
         }
     }
 
     componentDidMount() {
         this.handleGetOrder()
+        this.handleGetUser()
     }
 
     handleGetOrder = async () => {
@@ -39,9 +41,9 @@ export default class Komplain extends Component{
     console.warn(uid_penyedia)
     const {uid} = this.context.auth.user;
     await this.firebaseRef
-      .ref(`Pengguna/Pesanan/${uid}-${uid_penyedia}`)
+      .ref(`Pengguna/Pesanan/${noOrder}`)
       .on('value', (snapshot) => {
-        const data = snapshot.val();
+        const data = snapshot.val() ? snapshot.val() : {};
         if (data) {
           let jasaKey = Object.keys(data.Jasa);
           this.firebaseRef
@@ -65,16 +67,50 @@ export default class Komplain extends Component{
       });
   };
 
+
+   handleGetUser = async()  => {
+    const {uid} = this.context.auth.user;
+    await this.firebaseRef
+                .ref(`Pengguna/Pelanggan/${uid}`)
+                .on('value', (snap) => {
+                  const users = snap.val() || {};
+                  this.setState({
+                    user : users
+                  })
+                })
+  }
+
   handlePosting = async () => {
     const {uid_penyedia, noOrder} = this.props.route.params;
     const {uid} = this.context.auth.user;
+    const {addNotification} = this.context.app;
+    
     await this.firebaseRef
       .ref(`Pengguna/Komplain/${uid_penyedia}`)
       .set({
         komplain: this.state.komplain,
-        uid_pelanggan : uid
-      }).then( () => this.props.navigation.goBack())
+        uid_pelanggan : uid,
+        uid_penyedia : uid_penyedia,
+        tanggal : new Date().getTime(),
+        status : 'Pelanggan'
 
+      })
+
+      const {user} = this.state
+
+        const notificationData = {
+        noOrder: noOrder,
+        title: this.state.komplain,
+        waktu: new Date().getTime(),
+        nama: user.nama,
+        profile_photo: user.profile_photo,
+        isRead: false,
+        };
+
+        
+        addNotification(notificationData, uid_penyedia);
+        
+        this.props.navigation.goBack()
   }
     // ratingUpdate(rating){
     //     this.setState({

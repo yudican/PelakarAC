@@ -31,11 +31,13 @@ export default class PesananLangsung extends Component {
       alamatAlternatif: '',
       data: {},
       jasa: [],
+      user : {}
     };
   }
 
   componentDidMount() {
     this.handleGetJasa();
+    this.handleGetUser();
   }
 
   handleGetJasa = async () => {
@@ -44,7 +46,7 @@ export default class PesananLangsung extends Component {
     await this.firebaseRef
       .ref(`Pengguna/Pelanggan/${uid}/Keranjang/${uid_penyedia}`)
       .on('value', (snapshot) => {
-        const data = snapshot.val();
+        const data = snapshot.val() || {};
         if (data) {
           let jasaKey = Object.keys(data.Data_Jasa);
           this.setState((prevState) => ({
@@ -66,6 +68,18 @@ export default class PesananLangsung extends Component {
         }
       });
   };
+
+  handleGetUser = async()  => {
+    const {uid} = this.context.auth.user;
+    await this.firebaseRef
+                .ref(`Pengguna/Pelanggan/${uid}`)
+                .on('value', (snap) => {
+                  const users = snap.val() || {};
+                  this.setState({
+                    user : users
+                  })
+                })
+  }
 
   updateQty = (value, jasa_id, type, harga) => {
     const {uid} = this.context.auth.user;
@@ -90,8 +104,10 @@ export default class PesananLangsung extends Component {
       totalHarga,
       data,
       alamatAlternatif,
+      user
     } = this.state;
     const trxId = 'TRX-' + new Date().getTime();
+    const noOrder = trxId;
     const dataOrder = {
       noOrder: trxId,
       catatan: catatan,
@@ -102,24 +118,28 @@ export default class PesananLangsung extends Component {
       status: 'Belum Dikonfirmasi',
       rating: 0,
       ulasan: '',
+      uidPelanggan : uid,
+      uidPenyedia : uid_penyedia
     };
 
     const notificationData = {
       noOrder: trxId,
       title: `Pesanan Masuk ${trxId}`,
       waktu: new Date().getTime(),
-      nama: data.nama,
-      spanduk: data.spanduk,
+      nama: user.nama,
+      profile_photo: user.profile_photo,
       isRead: false,
     };
 
-    addOrderRequest(dataOrder, this.state.jasa, uid, uid_penyedia);
+    addOrderRequest(dataOrder, this.state.jasa, uid, uid_penyedia, trxId);
     addNotification(notificationData, uid_penyedia);
     this.firebaseRef
       .ref(`Pengguna/Pelanggan/${uid}/Keranjang/${uid_penyedia}`)
-      .remove();
-
-    this.props.navigation.navigate('PesananDetail', {uid_penyedia, trxId});
+      .remove()
+        
+      
+      this.props.navigation.navigate('PesananDetail', {uid_penyedia, noOrder}); 
+      
   };
 
   render() {
