@@ -10,6 +10,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SignUpRejected from '../pages/SignUpRejected';
 import SignUpPending from '../pages/SignupPending';
+import ForgotPassword from '../pages/ForgotPassword';
 // import { GoogleSignin } from '@react-native-community/google-signin';
 
 const Stack = createStackNavigator();
@@ -52,6 +53,11 @@ const AuthStack = ({initialRouteName = 'Login'}) => {
       <Stack.Screen
         name="Signup"
         component={SignupScreen}
+        options={{header: () => null}}
+      />
+      <Stack.Screen
+        name="ForgotPassword"
+        component={ForgotPassword}
         options={{header: () => null}}
       />
       <Stack.Screen

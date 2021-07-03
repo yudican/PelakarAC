@@ -34,21 +34,45 @@ export default class ListJasaTerdekat extends Component {
     this.state = {
       search: '',
       jasa: [],
+      kota: '',
     };
   }
 
   componentDidMount() {
+    this.handleGetProfile();
     this.handleGetPenyediaJasa();
   }
 
   handleGetPenyediaJasa = async () => {
-  await this.firebaseRef
+    await this.firebaseRef
       .ref('/Pengguna/Penyedia_Jasa')
       .on('value', (querySnapShot) => {
-        let data = querySnapShot.val() ? querySnapShot.val() : {};
-        let jasa = {...data};
+        let data = querySnapShot.val();
+        const dataKey = Object.keys(querySnapShot.val());
+        const dataValue = Object.values(querySnapShot.val());
+
+        if (data) {
+          let newData = [];
+          dataValue.map((item, i) => {
+            if (item.Data_Jasa) {
+              newData.push({...item, _id: dataKey[i]});
+            }
+          });
+          this.setState({
+            jasa: newData,
+          });
+        }
+      });
+  };
+
+  handleGetProfile = () => {
+    const {uid} = this.context.auth.user;
+    this.firebaseRef
+      .ref('Pengguna/Pelanggan/' + uid)
+      .on('value', (snapshot) => {
+        const {kota} = snapshot.val() || {};
         this.setState({
-          jasa,
+          kota,
         });
       });
   };
@@ -78,20 +102,11 @@ export default class ListJasaTerdekat extends Component {
       });
   };
 
-  //   handleGetJasa = async (id_jasa) => {
-  //     const data = []
-  //     await this.firebaseRef
-  //       .ref('Pengguna/Data_Jasa/'+id_jasa)
-  //       .on('value', (snapshot) => {
-  //         let jasa= Object.values(snapshot.val());
-  //         data.push(jasa)
-  //       });
-
-  //       return data
-  //   };
-
   render() {
-    let jasaKey = Object.keys(this.state.jasa);
+    let {jasa, search} = this.state;
+    const filteredElements = jasa.filter((e) =>
+      e.merk.toLowerCase().includes(search),
+    );
     const {navigation} = this.props;
     return (
       <View style={{flex: 1}}>
@@ -113,7 +128,7 @@ export default class ListJasaTerdekat extends Component {
           }
         />
         <SearchBar
-          placeholder="Cari Toko Atau Jasa..."
+          placeholder="Cari Toko..."
           onChangeText={(value) =>
             this.setState({search: value}, console.log(this.state.search))
           }
@@ -134,83 +149,83 @@ export default class ListJasaTerdekat extends Component {
             {/* <Image source={Logo} style={styles.logo} /> */}
           </ImageBackground>
 
-          <View style={styles.container}>
-            {jasaKey.length > 0 ? (
-              jasaKey.map((key) => (
-                <Card containerStyle={styles.cardContainer}>
-                  <View style={styles.labelTokoContainer}>
-                    <TouchableOpacity>
-                      <Text style={styles.labelToko}>
-                        {this.state.jasa[key].nama}
-                      </Text>
-                      <Text style={{color: 'rgba(0,0,0,0.4)'}}>
-                        {this.state.jasa[key].alamat}
-                      </Text>
-                      <Text style={{color: 'rgba(0,0,0,0.9)'}}>
-                        Jam Operasi : 10.00 - 20.00
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                  <Card.Divider></Card.Divider>
-                  {Object.keys(this.state.jasa[key].Data_Jasa).length > 0 ? (
-                    Object.keys(this.state.jasa[key].Data_Jasa).map(
-                      (dataKey) => (
+          {filteredElements.length > 0 ? (
+            filteredElements.map((item) => {
+              if (item.Data_Jasa) {
+                return (
+                  <View style={styles.container}>
+                    <Card containerStyle={styles.cardContainer}>
+                      <View style={styles.labelTokoContainer}>
                         <TouchableOpacity>
-                          <ListItem bottomDivider>
-                            <ListItem.Title></ListItem.Title>
-                            <ListItem.Content>
-                              <ListItem.Title style={{fontSize: 14}}>
-                                {
-                                  this.state.jasa[key].Data_Jasa[dataKey]
-                                    .namaJasa
-                                }
-                              </ListItem.Title>
-                              <ListItem.Subtitle style={{fontSize: 12}}>
-                                Rp.
-                                {
-                                  this.state.jasa[key].Data_Jasa[dataKey]
-                                    .hargaJasa
-                                }
-                              </ListItem.Subtitle>
-                            </ListItem.Content>
-                            <ListItem.Subtitle>
-                              <Icon
-                                raised
-                                name="shoppingcart"
-                                size={16}
-                                type="antdesign"
-                                color="#F18F37"
-                                onPress={() =>
-                                  this.handleAddToCart(
-                                    this.state.jasa[key].Data_Jasa[dataKey],
-                                    dataKey,
-                                    key,
-                                    this.state.jasa[key],
-                                  )
-                                }
-                              />
-                            </ListItem.Subtitle>
-                          </ListItem>
+                          <Text style={styles.labelToko}>{item.merk}</Text>
+                          <Text style={{color: 'rgba(0,0,0,0.4)'}}>
+                            {item.alamat}
+                          </Text>
+                          <Text style={{color: 'rgba(0,0,0,0.9)'}}>
+                            Jam Operasi : 10.00 - 20.00
+                          </Text>
                         </TouchableOpacity>
-                      ),
-                    )
-                  ) : (
-                    <Text>Nothing</Text>
-                  )}
+                      </View>
+                      <Card.Divider></Card.Divider>
+                      {Object.keys(item.Data_Jasa).length > 0 ? (
+                        Object.keys(item.Data_Jasa).map((dataKey) => (
+                          <TouchableOpacity>
+                            <ListItem bottomDivider>
+                              <ListItem.Title></ListItem.Title>
+                              <ListItem.Content>
+                                <ListItem.Title style={{fontSize: 14}}>
+                                  {item.Data_Jasa[dataKey].namaJasa}
+                                </ListItem.Title>
+                                <ListItem.Subtitle style={{fontSize: 12}}>
+                                  Rp.
+                                  {item.Data_Jasa[dataKey].hargaJasa}
+                                </ListItem.Subtitle>
+                              </ListItem.Content>
+                              <ListItem.Subtitle>
+                                <Icon
+                                  raised
+                                  name="shoppingcart"
+                                  size={16}
+                                  type="antdesign"
+                                  color="#F18F37"
+                                  onPress={() =>
+                                    this.handleAddToCart(
+                                      item.Data_Jasa[dataKey],
+                                      dataKey,
+                                      item._id,
+                                      item,
+                                    )
+                                  }
+                                />
+                              </ListItem.Subtitle>
+                            </ListItem>
+                          </TouchableOpacity>
+                        ))
+                      ) : (
+                        <Text>Nothing</Text>
+                      )}
 
-                  <TouchableOpacity
-                    style={styles.button}
-                    onPress={() =>
-                      navigation.navigate('TokoDeatil', {uid_penyedia: key})
-                    }>
-                    <Text style={styles.buttonText}>Lihat Toko</Text>
-                  </TouchableOpacity>
-                </Card>
-              ))
-            ) : (
-              <Text>noting</Text>
-            )}
-          </View>
+                      <TouchableOpacity
+                        style={styles.button}
+                        onPress={() =>
+                          navigation.navigate('TokoDeatil', {
+                            uid_penyedia: item._id,
+                          })
+                        }>
+                        <Text style={styles.buttonText}>Lihat Toko</Text>
+                      </TouchableOpacity>
+                    </Card>
+                  </View>
+                );
+              }
+            })
+          ) : (
+            <View style={{alignItems: 'center', paddingTop: '5%'}}>
+              <Text style={{color: 'rgba(0,0,0,0.5)'}}>
+                --Tidak Ada Jasa Tersedia--
+              </Text>
+            </View>
+          )}
         </ScrollView>
       </View>
     );
@@ -222,6 +237,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     height: '100%',
+    marginBottom: '10%',
   },
   labelToko: {
     fontSize: 16,

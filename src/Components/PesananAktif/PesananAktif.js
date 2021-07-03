@@ -47,6 +47,7 @@ const styles = StyleSheet.create({
     elevation: 7,
     marginVertical: windowHeight * 0.01,
     alignItems: 'center',
+    marginHorizontal: 10,
   },
   text: {
     marginLeft: windowWidth * 0.02,

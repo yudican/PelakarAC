@@ -77,12 +77,14 @@ export default class ChatDetail extends Component {
       await this.firebaseRef
         .ref('Pengguna/Penyedia_Jasa/' + user_id)
         .on('value', (snapshot) => {
-          const {nama, profile_photo} = snapshot.val();
-          this.setState((prevState) => ({
-            ...prevState,
-            nama,
-            profile_photo,
-          }));
+          if (snapshot.val()) {
+            const {nama, profile_photo} = snapshot.val();
+            this.setState((prevState) => ({
+              ...prevState,
+              nama,
+              profile_photo,
+            }));
+          }
         });
     }
   };

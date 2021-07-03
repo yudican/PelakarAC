@@ -42,7 +42,7 @@ export default class KelolaJasa extends Component {
     await this.firebaseRef
       .ref('Pengguna/Pelanggan/' + uid)
       .on('value', (snapshot) => {
-        const {spanduk} = snapshot.val();
+        const {spanduk} = snapshot.val() || {};
         this.setState({
           spanduk,
         });

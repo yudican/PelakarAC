@@ -12,6 +12,7 @@ import {
 import {Avatar, Card} from 'react-native-elements';
 import {launchImageLibrary} from 'react-native-image-picker';
 import {RootContext} from '../Navigation/Context';
+import database from '@react-native-firebase/database';
 
 const libraryOptions = {
   mediaType: 'photo',
@@ -21,6 +22,7 @@ const libraryOptions = {
 
 export default class SignupDetail extends Component {
   static contextType = RootContext;
+  firebaseRef = database();
   constructor(props) {
     super(props);
     this.state = {
@@ -68,6 +70,28 @@ export default class SignupDetail extends Component {
       keyKotaList: '',
     };
   }
+
+  componentDidMount() {
+    this.handleGetProfile();
+  }
+
+  handleGetProfile = async () => {
+    const {uid} = this.context.auth.user;
+    await this.firebaseRef
+      .ref('Pengguna/Pelanggan/' + uid)
+      .on('value', (snapshot) => {
+        if (snapshot.val()) {
+          const {nama, profile_photo} = snapshot.val();
+          this.setState((prevState) => ({
+            formData: {
+              ...prevState.formData,
+              profile_photo: profile_photo || '',
+              nama: nama || '',
+            },
+          }));
+        }
+      });
+  };
 
   handleOnChangeProvinsi(prov) {
     this.setState((prevState) => ({

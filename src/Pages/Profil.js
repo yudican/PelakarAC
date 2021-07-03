@@ -35,7 +35,6 @@ export default class Profil extends Component {
     this.firebaseRef
       .ref('Pengguna/Pelanggan/' + uid)
       .on('value', (snapshot) => {
-        console.log(snapshot.val());
         const {nama, no_telp, profile_photo, alamat} = snapshot.val() || {};
         this.setState({
           no_telp,
@@ -152,7 +151,12 @@ export default class Profil extends Component {
               <TouchableOpacity
                 onPress={() => navigation.navigate('Keranjang')}>
                 <ListItem bottomDivider>
-                  <Icon name="cart" type="fontisto" color="orange" />
+                  <Ionicons
+                    name="cart"
+                    type="fontisto"
+                    color="orange"
+                    size={25}
+                  />
                   <ListItem.Content>
                     <ListItem.Title>Keranjang</ListItem.Title>
                   </ListItem.Content>

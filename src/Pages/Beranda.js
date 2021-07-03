@@ -2,18 +2,68 @@ import React, {Component} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Card, Header, Icon, SearchBar} from 'react-native-elements';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import database from '@react-native-firebase/database';
+import {RootContext} from '../Auth/Navigation/Context';
+import {ScrollView} from 'react-native';
+import {FlatList} from 'react-native';
+import PesananAktif from '../Components/PesananAktif/PesananAktif';
+import {limitData, orderData} from '../Utils/helper';
 // import Carousel from '../Components/Carousel/Component/Carousel'
 // import {dummyData} from '../Components/Carousel/data/data'
 
 export default class Beranda extends Component {
+  firebaseRef = database();
+  static contextType = RootContext;
   constructor(props) {
     super(props);
     this.state = {
       search: '',
+      pesanan: [],
     };
   }
-  render() {
 
+  componentDidMount() {
+    // this.handleGetProfile();
+    this.handleGetPesanan();
+  }
+
+  handleGetPesanan = async () => {
+    const {uid} = this.context.auth.user;
+    await this.firebaseRef.ref('Pengguna/Pesanan').on('value', (snapshot) => {
+      const order = snapshot.val() || {};
+      const orderData = Object.values(order);
+
+      const orders = orderData.filter(
+        (itemOrder) => itemOrder.uidPelanggan === uid,
+      );
+      this.setState({pesanan: []});
+
+      if (orders.length > 0) {
+        orders.map((item) => {
+          this.firebaseRef
+            .ref('Pengguna/Penyedia_Jasa/' + item.uidPenyedia)
+            .on('value', (snapshots) => {
+              const seller = snapshots.val();
+              // const items = Object.values(item)
+              // console.log("data item" + items);
+              this.setState((prevState) => ({
+                pesanan: [
+                  ...prevState.pesanan,
+                  {
+                    ...item,
+                    merk: seller.merk,
+                    uid_penyedia: item.uidPenyedia,
+                  },
+                ],
+              }));
+            });
+        });
+      }
+    });
+  };
+  render() {
+    const {pesanan} = this.state;
+    const {navigation} = this.props;
     return (
       <View style={{flex: 1}}>
         <Header
@@ -28,49 +78,60 @@ export default class Beranda extends Component {
           }}
           backgroundColor="#5D89F7"
           rightComponent={
-            <TouchableOpacity onPress={()=> this.props.navigation.navigate('Notifikasi')}>
+            <TouchableOpacity
+              onPress={() => this.props.navigation.navigate('Notifikasi')}>
               <Ionicons name="notifications" color="#fff" size={20} />
             </TouchableOpacity>
           }
         />
-        <SearchBar
-          placeholder="Cari disini ..."
-          onChangeText={(value) => this.setState({search: value})}
-          value={this.state.search}
-          // lightTheme
-          showLoading
-          inputStyle={{height: 40}}
-          inputContainerStyle={{borderRadius: 15, height: 30}}
-        />
-        {/* <View>
-                    <Carousel data = {dummyData} />
-                </View> */}
-        {/* <TouchableWithoutFeedback style={{bottom:100}}>
-                    <Animated.View style={styles.button, styles.menu}>
-                        <AntDesign name="plus" size={24} color="#fff"/>
-                    </Animated.View>
-                </TouchableWithoutFeedback>
-                 */}
+
         <Card containerStyle={{borderRadius: 12}}>
           <View style={styles.categoryContainer}>
             <TouchableOpacity
               style={styles.categoryBtn}
-              onPress={() => this.props.navigation.navigate('ListJasaTerdekat')}>
+              onPress={() =>
+                this.props.navigation.navigate('ListJasaTerdekat')
+              }>
               <Icon reverse name="location" type="evilicon" color="#EC5C3F" />
               <Text style={{textAlign: 'center'}}>Terdekat</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.categoryBtn}
-              onPress={() => this.props.navigation.navigate('ListJasaRekomendasi')}>
+              onPress={() =>
+                this.props.navigation.navigate('ListJasaRekomendasi')
+              }>
               <Icon reverse name="tag" type="evilicon" color="orange" />
               <Text style={{textAlign: 'center'}}>Rekomendasi</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => this.props.navigation.navigate('Favorite')}>
+            <TouchableOpacity
+              onPress={() => this.props.navigation.navigate('Favorite')}>
               <Icon reverse name="favorite" type="material" color="red" />
               <Text style={{textAlign: 'center'}}>Favorit</Text>
             </TouchableOpacity>
           </View>
         </Card>
+
+        <Text style={styles.label}>Pesanan Aktif</Text>
+        <ScrollView>
+          <View style={styles.pesananAktif}>
+            <FlatList
+              data={limitData(orderData(pesanan))}
+              renderItem={({item}) => (
+                <PesananAktif
+                  title={item.merk}
+                  status={item.status}
+                  date={item.noOrder}
+                  onPress={() =>
+                    navigation.navigate('PesananDetail', {
+                      uid_penyedia: item.uid_penyedia,
+                      noOrder: item.noOrder,
+                    })
+                  }
+                />
+              )}
+            />
+          </View>
+        </ScrollView>
         <View
           style={{
             alignItems: 'center',
@@ -93,25 +154,13 @@ export default class Beranda extends Component {
 }
 
 const styles = StyleSheet.create({
-  // container : {
-  //     alignItems: "center",
-  //     position:'absolute'
-  // },
-  // button : {
-  //     position : "absolute",
-  //     width:60,
-  //     height:60,
-  //     borderRadius : 60 / 2,
-  //     alignItems:'center',
-  //     justifyContent:'center',
-  //     shadowRadius:10,
-  //     shadowColor:'#5D89F7',
-  //     shadowOpacity:0.3,
-  //     shadowOffset:{height:10}
-  // },
-  // menu : {
-  //     backgroundColor:"#5D89F7"
-  // }
+  pesananAktif: {
+    paddingHorizontal: 8,
+    backgroundColor: '#F6F6F6',
+    flex: 1,
+    borderTopRightRadius: 20,
+    borderTopLeftRadius: 20,
+  },
   categoryContainer: {
     flexDirection: 'row',
     alignSelf: 'center',
@@ -121,5 +170,13 @@ const styles = StyleSheet.create({
     marginHorizontal: 0,
     alignItems: 'center',
     marginRight: 60,
+  },
+  label: {
+    fontSize: 16,
+    marginTop: 10,
+    fontFamily: 'TitilliumWeb-Bold',
+    color: 'green',
+    marginLeft: 20,
+    paddingBottom: 10,
   },
 });

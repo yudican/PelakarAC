@@ -47,25 +47,30 @@ export default class PesananLangsung extends Component {
     await this.firebaseRef
       .ref(`Pengguna/Pelanggan/${uid}/Keranjang/${uid_penyedia}`)
       .on('value', (snapshot) => {
-        const data = snapshot.val() || {};
+        const data = snapshot.val();
         if (data) {
-          let jasaKey = Object.keys(data.Data_Jasa);
-          this.setState((prevState) => ({
-            totalHarga: 0,
-          }));
-          jasaKey.map((dataKey) => {
-            if (data.Data_Jasa[dataKey]?.isSelected) {
+          this.firebaseRef
+            .ref('Pengguna/Penyedia_Jasa/' + uid_penyedia)
+            .on('value', (snapshot) => {
+              const user = snapshot.val();
+              let jasaKey = Object.keys(data.Data_Jasa);
               this.setState((prevState) => ({
-                data,
-                jasa: data.Data_Jasa,
-                totalHarga:
-                  parseInt(prevState.totalHarga) +
-                  parseInt(data.Data_Jasa[dataKey].hargaJasa) *
-                    parseInt(data.Data_Jasa[dataKey].jumlah) +
-                  parseInt(prevState.biayaAdmin),
+                totalHarga: 0,
               }));
-            }
-          });
+              jasaKey.map((dataKey) => {
+                if (data.Data_Jasa[dataKey]?.isSelected) {
+                  this.setState((prevState) => ({
+                    data: user,
+                    jasa: data.Data_Jasa,
+                    totalHarga:
+                      parseInt(prevState.totalHarga) +
+                      parseInt(data.Data_Jasa[dataKey].hargaJasa) *
+                        parseInt(data.Data_Jasa[dataKey].jumlah) +
+                      parseInt(prevState.biayaAdmin),
+                  }));
+                }
+              });
+            });
         }
       });
   };

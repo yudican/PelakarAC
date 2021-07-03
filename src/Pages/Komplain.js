@@ -144,7 +144,7 @@ export default class Komplain extends Component {
         />
         <ScrollView>
           <ImageBackground
-            source={require('../Assets/Image/Toko1.jpg')}
+            source={require('../Assets/Image/Toko1.png')}
             style={styles.header}></ImageBackground>
           <View style={styles.container}>
             <Card containerStyle={styles.cardContainer}>

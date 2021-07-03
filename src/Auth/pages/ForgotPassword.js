@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -6,55 +6,17 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {SocialIcon} from 'react-native-elements';
 // import {db} from '../../database/config'
 import Logo from '../components/Logo';
 import {AuthContext} from '../Navigation/AuthProvider';
-import {
-  GoogleSignin,
-  statusCodes,
-} from '@react-native-google-signin/google-signin';
 
-const LoginScreen = ({navigation}) => {
-  const {login} = useContext(AuthContext);
+const ForgotPassword = ({navigation}) => {
+  const {sendEmailResetPaasword} = useContext(AuthContext);
   const [email, setEmail] = useState();
-  const [password, setPassword] = useState();
-
-  useEffect(() => {
-    GoogleSignin.configure({
-      scopes: ['email'], // what API you want to access on behalf of the user, default is email and profile
-      webClientId:
-        '291760450111-hq5je4vpfn6q2mnilg28jpjoespra0or.apps.googleusercontent.com', // client ID of type WEB for your server (needed to verify user ID and offline access)
-      // offlineAccess: true, // if you want to access Google API on behalf of the user FROM YOUR SERVER
-    });
-  }, []);
-
-  const _signIn = async () => {
-    try {
-      await GoogleSignin.hasPlayServices();
-      const userInfo = await GoogleSignin.signIn();
-      const {email, id} = userInfo.user;
-      login(email, id);
-    } catch (error) {
-      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        // user cancelled the login flow
-        // alert('Cancel');
-      } else if (error.code === statusCodes.IN_PROGRESS) {
-        // alert('Signin in progress');
-        // operation (f.e. sign in) is in progress already
-      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        // alert('PLAY_SERVICES_NOT_AVAILABLE');
-        // play services not available or outdated
-      } else {
-        console.log(error);
-        // some other error happened
-      }
-    }
-  };
 
   return (
     <View style={styles.container}>
-      <Logo />
+      <Logo title="Lupa Kata Sandi" />
       <View style={styles.containerlogin}>
         <TextInput
           style={styles.inputBox}
@@ -67,50 +29,23 @@ const LoginScreen = ({navigation}) => {
           // onSubmitEditing={()=> this.pswd.focus()}
           onChangeText={(userEmail) => setEmail(userEmail)}
         />
-        <TextInput
-          style={styles.inputBox}
-          labelValue={password}
-          underlineColorAndroid="rgba(0,0,0,0)"
-          placeholder="Masukkan Password"
-          secureTextEntry={true}
-          placeholderTextColor="#ffffff"
-          // ref={(input) => this.pswd = input}
-          onChangeText={(userPassword) => setPassword(userPassword)}
-        />
 
         <TouchableOpacity
           style={styles.button}
-          onPress={() => login(email, password)}>
-          <Text style={styles.buttonText}>Masuk</Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <SocialIcon
-            type="google"
-            iconColor="white"
-            onPress={() => _signIn()}
-            style={{backgroundColor: '#ED3B3B', width: 300}}
-            button
-            title="Masuk dengan Google"
-          />
+          onPress={() => sendEmailResetPaasword(email)}>
+          <Text style={styles.buttonText}>Kirim Reset Link</Text>
         </TouchableOpacity>
       </View>
       <View style={styles.signupTextCont}>
-        <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
-          <Text style={styles.signupButton}>
-            <Text style={styles.signupText}>Lupa kata sandi?</Text>
-          </Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.signupTextCont}>
-        <Text style={styles.signupText}>Belum punya akun?</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
-          <Text style={styles.signupButton}> Daftar</Text>
+        <Text style={styles.signupText}>Ingat kata sandi?</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+          <Text style={styles.signupButton}> Masuk</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 };
-export default LoginScreen;
+export default ForgotPassword;
 
 // export default class Login extends Component {
 //   constructor(props){

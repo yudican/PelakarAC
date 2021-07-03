@@ -4,7 +4,13 @@ import {FlatList, TouchableOpacity, View} from 'react-native';
 import {Avatar, Header, ListItem} from 'react-native-elements';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {RootContext} from '../Auth/Navigation/Context';
-import {chatTime, getChatFinalData, unique} from '../Utils/helper';
+import {
+  chatTime,
+  getChatFinalData,
+  getLastChat,
+  renderChat,
+  unique,
+} from '../Utils/helper';
 // import {Container, Content, List, ListItem, Left, Body, Right, Thumbnail, Text} from 'native-base'
 
 export default class ChatPages extends Component {
@@ -27,35 +33,31 @@ export default class ChatPages extends Component {
   handleGetChat = async () => {
     const {uid} = this.context.auth.user;
     await this.firebaseRef.ref('Pengguna/Chat').on('value', (snapshot) => {
+      this.setState({chatLists: []});
       if (snapshot.val()) {
         const chatId = Object.keys(snapshot.val());
         const chatLists = Object.values(snapshot.val());
         chatId.map((idChat) => {
-          idChat.split('-').map((key) => {
-            if (key === uid) {
-              chatLists.map((item) => {
-                const dataChat = Object.values(item);
-                const newChat = dataChat.map((chat) => {
-                  if (chat.receiverId === uid) {
-                    this.firebaseRef
-                    .ref('Pengguna/Penyedia_Jasa/' + chat.senderId)
-                    .on('value', (snapshot) => {
-                      const data = snapshot.val() || {};
-                        const user = {
-                          name: data.nama,
-                          avatar: data.profile_photo,
-                          _id: chat.senderId,
-                        };
-                        this.setState((prevState) => ({
-                          chatLists: [...prevState.chatLists, {...chat, user}],
-                        }));
-                      });
+          if (idChat.split('-')[0] === uid) {
+            chatLists.map((item) => {
+              const dataChat = getLastChat(Object.values(item))[0];
+              this.firebaseRef
+                .ref('Pengguna/Penyedia_Jasa/' + dataChat.senderId)
+                .on('value', (snapshot) => {
+                  const data = snapshot.val();
+                  if (snapshot.val()) {
+                    let user = {
+                      name: data.nama,
+                      avatar: data.profile_photo,
+                      _id: dataChat.senderId,
+                    };
+                    this.setState((prevState) => ({
+                      chatLists: [...prevState.chatLists, {...dataChat, user}],
+                    }));
                   }
-                  
                 });
-              });
-            }
-          });
+            });
+          }
         });
       }
     });
@@ -64,32 +66,31 @@ export default class ChatPages extends Component {
   handleGetOwnChat = async () => {
     const {uid} = this.context.auth.user;
     await this.firebaseRef.ref('Pengguna/Chat').on('value', (snapshot) => {
+      this.setState({chatLists: []});
       if (snapshot.val()) {
         const chatId = Object.keys(snapshot.val());
         const chatLists = Object.values(snapshot.val());
-
         chatId.map((idChat) => {
-          chatLists.map((item) => {
-            const dataChat = Object.values(item);
-            const newChat = dataChat.map((chat) => {
-              if(chat.receiverId === uid){
+          if (idChat.split('-')[0] === uid) {
+            chatLists.map((item) => {
+              const dataChat = getLastChat(Object.values(item))[0];
               this.firebaseRef
-                .ref('Pengguna/Pelanggan/' + chat.senderId)
+                .ref('Pengguna/Penyedia_Jasa/' + dataChat.receiverId)
                 .on('value', (snapshot) => {
-                  const data = snapshot.val() || {};
-                  const user = {
-                    name: data.nama,
-                    avatar: data.profile_photo,
-                    _id: chat.senderId,
-                  };
-                  this.setState((prevState) => ({
-                    chatLists: [...prevState.chatLists, {...chat, user}],
-                  }));
+                  const data = snapshot.val();
+                  if (snapshot.val()) {
+                    let user = {
+                      name: data.nama,
+                      avatar: data.profile_photo,
+                      _id: dataChat.receiverId,
+                    };
+                    this.setState((prevState) => ({
+                      chatLists: [...prevState.chatLists, {...dataChat, user}],
+                    }));
+                  }
                 });
-              }
-              
             });
-          });
+          }
         });
       }
     });
@@ -99,7 +100,7 @@ export default class ChatPages extends Component {
     const {navigation} = this.props;
     const {chatLists} = this.state;
     const {uid} = this.context.auth.user;
-    console.log(getChatFinalData(chatLists))
+
     return (
       <View>
         <Header
@@ -114,7 +115,7 @@ export default class ChatPages extends Component {
           }}
           backgroundColor="#5D89F7"
           rightComponent={
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('Notifikasi')}>
               <Ionicons name="notifications" color="#fff" size={20} />
             </TouchableOpacity>
           }
@@ -122,7 +123,7 @@ export default class ChatPages extends Component {
         />
 
         <FlatList
-          data={unique(getChatFinalData(chatLists))}
+          data={getLastChat(renderChat(getChatFinalData(chatLists)))}
           renderItem={({item}) => (
             <TouchableOpacity
               onPress={() =>

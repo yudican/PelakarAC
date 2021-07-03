@@ -14,6 +14,33 @@ export const unique = (arr, index) => {
   return unique;
 };
 
+export const renderChat = (chatLists) => {
+  return chatLists.filter(
+    (ele, ind) =>
+      ind === chatLists.findIndex((elem) => elem.user._id === ele.user._id),
+  );
+};
+
+export const orderData = (arr) => {
+  const array = arr.sort(
+    (a, b) => getDate(b.tanggalPesan) - getDate(a.tanggalPesan),
+  );
+
+  return array;
+};
+
+export const limitData = (array) => {
+  let newData = [];
+  array &&
+    array.map((item) => {
+      if (newData.length < 5) {
+        newData.push(item);
+      }
+    });
+
+  return newData;
+};
+
 export const getChatFinalData = (array) => {
   return array.filter((item) => item.user.name != undefined);
 };
@@ -34,4 +61,8 @@ export const getDateOrder = (time, prefix = '-') => {
   const dateOrder = `${date.getDate()}${prefix}${date.getMonth()}${prefix}${date.getFullYear()}`;
 
   return dateOrder;
+};
+
+export const getLastChat = (chats) => {
+  return chats.sort((a, b) => getDate(b.createdAt) - getDate(a.createdAt));
 };

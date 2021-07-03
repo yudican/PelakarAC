@@ -53,32 +53,34 @@ export default class PesananDetail extends Component {
     await this.firebaseRef
       .ref(`Pengguna/Pesanan/${noOrder}`)
       .on('value', (snapshot) => {
-        const data = snapshot.val() || {};
+        const data = snapshot.val();
         if (data) {
-          let jasaKey = Object.keys(data.Jasa);
-          this.firebaseRef
-            .ref(`Pengguna/Penyedia_Jasa/${uid_penyedia}`)
-            .on('value', (snap) => {
-              const dataPenyedia = snap.val() ? snap.val() : {};
+          if (data.Jasa) {
+            let jasaKey = Object.keys(data.Jasa);
+            this.firebaseRef
+              .ref(`Pengguna/Penyedia_Jasa/${uid_penyedia}`)
+              .on('value', (snap) => {
+                const dataPenyedia = snap.val() ? snap.val() : {};
 
-              this.setState({
-                uidPenyedia: uid_penyedia,
-                noOder: noOrder,
-                totalHarga: data.totalHarga,
-                biayaAdmin: data.biayaAdmin,
-                status: data.status,
-                rating: data.rating,
-                ulasan: data.ulasan,
-                dataJasa: data.Jasa,
-                penyedia_jasa: dataPenyedia.nama,
-                alamat: dataPenyedia.alamat,
-                no_telpon: dataPenyedia.no_telp,
-                image: dataPenyedia.spanduk,
-                catatan: data.catatan,
-                ulasan: data.ulasan,
-                alasanPembatalan: data.alasanPembatalan,
+                this.setState({
+                  uidPenyedia: uid_penyedia,
+                  noOder: noOrder,
+                  totalHarga: data.totalHarga,
+                  biayaAdmin: data.biayaAdmin,
+                  status: data.status,
+                  rating: data.rating,
+                  ulasan: data.ulasan,
+                  dataJasa: data.Jasa,
+                  penyedia_jasa: dataPenyedia.nama,
+                  alamat: dataPenyedia.alamat,
+                  no_telpon: dataPenyedia.no_telp,
+                  image: dataPenyedia.spanduk,
+                  catatan: data.catatan,
+                  ulasan: data.ulasan,
+                  alasanPembatalan: data.alasanPembatalan,
+                });
               });
-            });
+          }
         }
       });
   };
@@ -137,21 +139,23 @@ export default class PesananDetail extends Component {
 
               <Card.Divider></Card.Divider>
 
-              <ListItem bottomDivider>
-                <ListItem.Content>
-                  {jasaKey.map((data) => (
+              {jasaKey.map((data) => (
+                <ListItem bottomDivider>
+                  <ListItem.Content>
                     <ListItem.Title style={{fontSize: 14}}>
                       {this.state.dataJasa[data].namaJasa}
                     </ListItem.Title>
-                  ))}
-
-                  <ListItem.Subtitle style={{fontSize: 12}}>
-                    Rp.{this.state.totalHarga}
+                    <ListItem.Subtitle style={{fontSize: 12}}>
+                      Rp.{this.state.dataJasa[data].hargaJasa}
+                    </ListItem.Subtitle>
+                  </ListItem.Content>
+                  <ListItem.Subtitle>Qty : </ListItem.Subtitle>
+                  <ListItem.Subtitle>
+                    {this.state.dataJasa[data].jumlah}
                   </ListItem.Subtitle>
-                </ListItem.Content>
-                <ListItem.Subtitle>Qty : </ListItem.Subtitle>
-                <ListItem.Subtitle>{total}</ListItem.Subtitle>
-              </ListItem>
+                </ListItem>
+              ))}
+
               <Card.Divider></Card.Divider>
               <ListItem>
                 <ListItem.Content>
@@ -302,16 +306,6 @@ export default class PesananDetail extends Component {
                       })
                     }>
                     <Text style={styles.buttonText}>Tanya Tukang</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.button}
-                    onPress={() =>
-                      navigation.navigate(
-                        'BatalkanPesanan',
-                        this.props.route.params,
-                      )
-                    }>
-                    <Text style={styles.buttonText}>Batalkan Pesanan</Text>
                   </TouchableOpacity>
                 </View>
               )}

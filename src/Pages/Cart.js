@@ -32,33 +32,58 @@ export default class Cart extends Component {
   handleCheckedBox(jasa, type, uid_penyedia, jasa_id = null) {
     const {uid} = this.context.auth.user;
     const {updateCart} = this.context.app;
-    if (type === 'all') {
-      const data = {selectedAll: !jasa.selectedAll};
-      const items = Object.keys(jasa.Data_Jasa);
+    if (jasa) {
+      if (type === 'all') {
+        const data = {selectedAll: !jasa.selectedAll};
 
-      items.map((itemKey) => {
-        const data = {
-          isSelected: !jasa.selectedAll,
-        };
-        updateCart(data, itemKey, uid_penyedia, uid);
-      });
-      updateCart(data, jasa_id, uid_penyedia, uid, true);
-    } else {
-      const data = {isSelected: !jasa.isSelected};
-      updateCart(data, jasa_id, uid_penyedia, uid);
+        jasa.map((itemKey) => {
+          const data = {
+            isSelected: !jasa.selectedAll,
+          };
+          updateCart(data, itemKey.uid, uid_penyedia, uid);
+        });
+        updateCart(data, jasa_id, uid_penyedia, uid, true);
+      } else {
+        const data = {isSelected: !jasa.isSelected};
+        updateCart(data, jasa_id, uid_penyedia, uid);
+      }
     }
   }
 
   handleGetCart = async () => {
     const {uid} = this.context.auth.user;
+
     await this.firebaseRef
       .ref(`Pengguna/Pelanggan/${uid}/Keranjang`)
       .on('value', (querySnapShot) => {
-        let data = querySnapShot.val() ? querySnapShot.val() : {};
-        let cart = {...data};
-        this.setState({
-          cart,
-        });
+        if (querySnapShot.val()) {
+          const carts = Object.keys(querySnapShot.val());
+          const data = Object.values(querySnapShot.val());
+          carts &&
+            carts.map((key, i) => {
+              const jasaKey = Object.keys(data[i].Data_Jasa);
+              const jasa = Object.values(data[i].Data_Jasa);
+              const dataJasa = jasaKey.map((key) => {
+                return {
+                  uid: key,
+                  data: data[i].Data_Jasa[key],
+                };
+              });
+
+              this.firebaseRef
+                .ref('Pengguna/Penyedia_Jasa/' + key)
+                .on('value', (snapshot) => {
+                  const user = snapshot.val();
+                  this.setState({cart: []});
+                  this.setState((prevState) => ({
+                    cart: [
+                      ...prevState.cart,
+                      {_uid: key, ...data[i], user, jasa: dataJasa},
+                    ],
+                  }));
+                });
+            });
+        }
       });
   };
 
@@ -69,7 +94,7 @@ export default class Cart extends Component {
   };
 
   render() {
-    let cartKey = Object.keys(this.state.cart);
+    const {cart} = this.state;
     const {navigation} = this.props;
     return (
       <View>
@@ -90,87 +115,84 @@ export default class Cart extends Component {
             </TouchableOpacity>
           }
         />
-        {cartKey.length > 0 ? (
-          cartKey.map((key) => (
+        {cart.length > 0 ? (
+          cart.map((item) => (
             <Card containerStyle={styles.cardContainer}>
               <View style={styles.labelTokoContainer}>
                 <CheckBox
-                  checked={this.state.cart[key].selectedAll}
+                  checked={item.selectedAll}
                   onPress={() =>
-                    this.handleCheckedBox(
-                      this.state.cart[key],
-                      'all',
-                      key,
-                      null,
-                    )
+                    this.handleCheckedBox(item.jasa, 'all', item._uid, null)
                   }
                 />
                 <TouchableOpacity>
-                  <Text style={styles.labelToko}>
-                    {this.state.cart[key].nama}
-                  </Text>
+                  <Text style={styles.labelToko}>{item.user.nama}</Text>
                   <Text style={{color: 'rgba(0,0,0,0.4)'}}>
-                    {this.state.cart[key].merk}
+                    {item.user.merk}
                   </Text>
                 </TouchableOpacity>
               </View>
               <Card.Divider></Card.Divider>
-              {Object.keys(this.state.cart[key].Data_Jasa).length > 0 ? (
-                Object.keys(this.state.cart[key].Data_Jasa).map((jasaKey) => (
+              {item.jasa.length > 0 ? (
+                item.jasa.map(({data, uid}) => (
                   <TouchableOpacity>
                     <ListItem bottomDivider>
                       <ListItem.Title>
                         <CheckBox
-                          checked={
-                            this.state.cart[key].Data_Jasa[jasaKey].isSelected
-                          }
+                          checked={data.isSelected}
                           onPress={() =>
                             this.handleCheckedBox(
-                              this.state.cart[key].Data_Jasa[jasaKey],
+                              data,
                               'single',
-                              key,
-                              jasaKey,
+                              item._uid,
+                              uid,
                             )
                           }
                         />
                       </ListItem.Title>
                       <ListItem.Content>
                         <ListItem.Title style={{fontSize: 14}}>
-                          {this.state.cart[key].Data_Jasa[jasaKey].namaJasa}
+                          {data.namaJasa}
                         </ListItem.Title>
                         <ListItem.Subtitle style={{fontSize: 12}}>
-                          Rp.{this.state.cart[key].Data_Jasa[jasaKey].hargaJasa}
+                          Rp.{data.hargaJasa}
                         </ListItem.Subtitle>
                       </ListItem.Content>
                       <ListItem.Content>
                         {/* Qty : {jasa[dataKey].jumlah} */}
                         <Qty
                           onPress={(value, type) =>
-                            this.updateQty(value, jasaKey, key, type)
+                            this.updateQty(value, uid, item._uid, type)
                           }
-                          valueCount={
-                            this.state.cart[key].Data_Jasa[jasaKey].jumlah
-                          }
+                          valueCount={data.jumlah}
                         />
                       </ListItem.Content>
                     </ListItem>
                   </TouchableOpacity>
                 ))
               ) : (
-                <Text>Nothing</Text>
+                <View style={{alignItems: 'center', paddingTop: '5%'}}>
+                  <Text style={{color: 'rgba(0,0,0,0.5)'}}>
+                    --Keranjang Kosong--
+                  </Text>
+                </View>
               )}
 
               <TouchableOpacity
                 style={styles.button}
                 onPress={() =>
-                  navigation.navigate('PesananLangsung', {uid_penyedia: key})
+                  navigation.navigate('PesananLangsung', {
+                    uid_penyedia: item._uid,
+                  })
                 }>
                 <Text style={styles.buttonText}>Pesan</Text>
               </TouchableOpacity>
             </Card>
           ))
         ) : (
-          <Text>nothing</Text>
+          <View style={{alignItems: 'center', paddingTop: '5%'}}>
+            <Text style={{color: 'rgba(0,0,0,0.5)'}}>--Keranjang Kosong--</Text>
+          </View>
         )}
       </View>
     );

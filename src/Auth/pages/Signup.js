@@ -1,23 +1,56 @@
-import React, {Component, useContext, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {
   StyleSheet,
   Text,
-  View,
-  StatusBar,
-  TouchableOpacity,
   TextInput,
-  Alert,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import {db} from '../../database/config';
 import Logo from '../components/Logo';
 import {AuthContext} from '../Navigation/AuthProvider';
+import {
+  GoogleSignin,
+  statusCodes,
+} from '@react-native-google-signin/google-signin';
+import {SocialIcon} from 'react-native-elements/dist/social/SocialIcon';
 
 const SignupScreen = ({navigation}) => {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
   const [rePassword, setRePassword] = useState();
 
-  const {register} = useContext(AuthContext);
+  const {register, registerGoogle} = useContext(AuthContext);
+
+  useEffect(() => {
+    GoogleSignin.configure({
+      scopes: ['email'], // what API you want to access on behalf of the user, default is email and profile
+      webClientId:
+        '291760450111-hq5je4vpfn6q2mnilg28jpjoespra0or.apps.googleusercontent.com', // client ID of type WEB for your server (needed to verify user ID and offline access)
+      // offlineAccess: true, // if you want to access Google API on behalf of the user FROM YOUR SERVER
+    });
+  }, []);
+
+  const _signIn = async () => {
+    try {
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      registerGoogle(userInfo.user);
+    } catch (error) {
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        // user cancelled the login flow
+        // alert('Cancel');
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        // alert('Signin in progress');
+        // operation (f.e. sign in) is in progress already
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        // alert('PLAY_SERVICES_NOT_AVAILABLE');
+        // play services not available or outdated
+      } else {
+        console.log(error);
+        // some other error happened
+      }
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -60,9 +93,15 @@ const SignupScreen = ({navigation}) => {
           onPress={() => register(email, password, rePassword, navigation)}>
           <Text style={styles.buttonText}>Daftar</Text>
         </TouchableOpacity>
-        {/* <TouchableOpacity>
-             <SocialIcon type="google" iconColor="white" style={{backgroundColor:'#ED3B3B',width:300}} button title="Masuk dengan Google"/>
-           </TouchableOpacity>      */}
+        <TouchableOpacity onPress={() => _signIn()}>
+          <SocialIcon
+            type="google"
+            iconColor="white"
+            style={{backgroundColor: '#ED3B3B', width: 300}}
+            button
+            title="Masuk dengan Google"
+          />
+        </TouchableOpacity>
       </View>
       <View style={styles.signupTextCont}>
         <Text style={styles.signupText}>Sudah punya akun?</Text>

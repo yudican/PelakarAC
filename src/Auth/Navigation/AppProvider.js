@@ -3,6 +3,7 @@ import {db} from '../../database/config';
 import {Alert, ToastAndroid} from 'react-native';
 import storage from '@react-native-firebase/storage';
 import uuid from 'react-native-uuid';
+import messaging from '@react-native-firebase/messaging';
 
 export const AppContext = createContext();
 
@@ -175,9 +176,7 @@ export const AppProvider = ({children}) => {
                   };
                   db.app
                     .database()
-                    .ref(
-                      `Pengguna/Pesanan/${trxId}/Jasa/${dataKey}`,
-                    )
+                    .ref(`Pengguna/Pesanan/${trxId}/Jasa/${dataKey}`)
                     .set(dataJasa)
                     .then((data) => {
                       ToastAndroid.showWithGravityAndOffset(
@@ -205,6 +204,23 @@ export const AppProvider = ({children}) => {
               `Pengguna/Penyedia_Jasa/${uid_penyedia}/Notifikasi/${uuid.v4()}`,
             )
             .set(data);
+
+          await db.app
+            .database()
+            .ref(`Pengguna/Penyedia_Jasa/${uid_penyedia}}`)
+            .once('value', (snapshot) => {
+              if (snapshot.val()) {
+                const {fcmToken} = snapshot.val();
+                if (fcmToken) {
+                  messaging().sendToDevice(fcmToken, {
+                    notification: {
+                      title: data.nama,
+                      body: data.title,
+                    },
+                  });
+                }
+              }
+            });
         },
         uploadImage: async (uri, fileName, path) => {
           const imageRef = storage().ref(`${path}/${fileName}`);

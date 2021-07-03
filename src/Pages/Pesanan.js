@@ -31,7 +31,7 @@ export default class Pesanan extends Component {
   handleGetPesanan = async () => {
     const {uid} = this.context.auth.user;
     await this.firebaseRef.ref('Pengguna/Pesanan').on('value', (snapshot) => {
-      const order = snapshot.val();
+      const order = snapshot.val() || {};
       const orderData = Object.values(order);
 
       const orders = orderData.filter(
@@ -64,8 +64,6 @@ export default class Pesanan extends Component {
   };
   render() {
     const {pesanan} = this.state;
-
-    console.log(pesanan);
 
     const {navigation} = this.props;
     return (

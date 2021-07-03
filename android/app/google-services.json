@@ -15,6 +15,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "291760450111-nhitrak2qjf86qacd7t0t4ngq3mlrt5o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.belajarapps",
+            "certificate_hash": "01f54301503fbd72883d97899e26a0ed2dfd1e8f"
+          }
+        },
+        {
+          "client_id": "291760450111-v8cv2q4v80vrpsvvr838jsqgg4d5aqvh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.belajarapps",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
           "client_id": "291760450111-hq5je4vpfn6q2mnilg28jpjoespra0or.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -43,6 +59,22 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "291760450111-h9ta4njsoj6jdi77n201k573n254id9j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pelangganpakarac",
+            "certificate_hash": "01f54301503fbd72883d97899e26a0ed2dfd1e8f"
+          }
+        },
+        {
+          "client_id": "291760450111-ohv6oaki1h6o65tlnm98opbvam9291au.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pelangganpakarac",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
         {
           "client_id": "291760450111-hq5je4vpfn6q2mnilg28jpjoespra0or.apps.googleusercontent.com",
           "client_type": 3

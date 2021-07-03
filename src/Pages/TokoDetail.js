@@ -36,11 +36,12 @@ export default class TokoDeatil extends Component {
       favorit: false,
       data: {},
       jasa: [],
-      Data_jasa : {},
+      Data_jasa: {},
     };
   }
 
   componentDidMount() {
+    this.handleGetFavorite();
     this.handleGetJasa();
   }
 
@@ -49,22 +50,40 @@ export default class TokoDeatil extends Component {
     await this.firebaseRef
       .ref('Pengguna/Penyedia_Jasa/' + uid_penyedia)
       .on('value', (snapshot) => {
-        const data = snapshot.val();
-        this.setState({
-          data,
-          jasa: data.Data_Jasa,
-        });
+        if (snapshot.val()) {
+          const data = snapshot.val();
+          this.setState({
+            data,
+            jasa: data.Data_Jasa,
+          });
+        }
+      });
+  };
+
+  handleGetFavorite = async () => {
+    const {uid} = this.context.auth.user;
+    const {uid_penyedia} = this.props.route.params;
+    await this.firebaseRef
+      .ref('Pengguna/Pelanggan/' + uid + '/Favorite/' + uid_penyedia)
+      .on('value', (querySnapShot) => {
+        let data = querySnapShot.val();
+        if (data) {
+          this.setState({
+            favorit: true,
+          });
+        }
       });
   };
 
   handleFavoritBtn() {
     const {uid_penyedia} = this.props.route.params;
-    this.handleAddToFavorite(uid_penyedia);
     if (this.state.favorit) {
+      this.handleRemoveFavorite(uid_penyedia);
       this.setState({
         favorit: false,
       });
     } else {
+      this.handleAddToFavorite(uid_penyedia);
       this.setState({
         favorit: true,
       });
@@ -82,7 +101,7 @@ export default class TokoDeatil extends Component {
       alamat: data.alamat,
     };
 
-    this.firebaseRef
+    await this.firebaseRef
       .ref(`Pengguna/Pelanggan/${uid}/Keranjang/${uid_penyedia}/Data_Jasa`)
       .once('value', (snapshot) => {
         const data = snapshot.val();
@@ -95,6 +114,13 @@ export default class TokoDeatil extends Component {
         }
       });
     // addToCart(user, jasa, jasa_id, uid_penyedia, uid);
+  };
+
+  handleRemoveFavorite = async (id) => {
+    const {uid} = this.context.auth.user;
+    await this.firebaseRef
+      .ref('Pengguna/Pelanggan/' + uid + '/Favorite/' + id)
+      .remove();
   };
 
   handleAddToFavorite = async (penyedia) => {
@@ -114,11 +140,10 @@ export default class TokoDeatil extends Component {
         };
         addToFavorite(newData, penyedia, uid);
       });
-
   };
   render() {
     const {data, jasa} = this.state;
-    let jasaKey = Object.keys(jasa);
+    let jasaKey = jasa ? Object.keys(jasa) : {};
     const {navigation, route} = this.props;
     return (
       <View style={{flex: 1}}>
@@ -162,7 +187,7 @@ export default class TokoDeatil extends Component {
             <Card containerStyle={styles.cardContainer}>
               <View style={styles.labelTokoContainer}>
                 <TouchableOpacity>
-                  <Text style={styles.labelToko}>{data.nama}</Text>
+                  <Text style={styles.labelToko}>{data.merk}</Text>
                   <Text style={{color: 'rgba(0,0,0,0.4)', marginVertical: 5}}>
                     {data.alamat}
                   </Text>
@@ -189,7 +214,7 @@ export default class TokoDeatil extends Component {
                     Jam Operasi : 10.00 - 20.00
                   </Text> */}
                 </TouchableOpacity>
-                
+
                 <Icon
                   name={this.state.favorit ? 'favorite' : 'favorite-border'}
                   type="material"
