@@ -11,6 +11,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import SignUpRejected from '../pages/SignUpRejected';
 import SignUpPending from '../pages/SignupPending';
 import ForgotPassword from '../pages/ForgotPassword';
+import UbahPassword from '../../Pages/UpdatePassword';
 // import { GoogleSignin } from '@react-native-community/google-signin';
 
 const Stack = createStackNavigator();

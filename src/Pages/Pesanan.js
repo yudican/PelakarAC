@@ -11,6 +11,7 @@ import {Header, SearchBar} from 'react-native-elements';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {RootContext} from '../Auth/Navigation/Context';
 import PesananAktif from '../Components/PesananAktif/PesananAktif';
+import {getDateOrder} from '../Utils/helper';
 
 export default class Pesanan extends Component {
   firebaseRef = database();
@@ -109,7 +110,7 @@ export default class Pesanan extends Component {
                 <PesananAktif
                   title={item.merk}
                   status={item.status}
-                  date={item.noOrder}
+                  date={getDateOrder(item.tanggalPesan, '/')}
                   onPress={() =>
                     navigation.navigate('PesananDetail', {
                       uid_penyedia: item.uid_penyedia,

@@ -7,7 +7,7 @@ import {RootContext} from '../Auth/Navigation/Context';
 import {ScrollView} from 'react-native';
 import {FlatList} from 'react-native';
 import PesananAktif from '../Components/PesananAktif/PesananAktif';
-import {limitData, orderData} from '../Utils/helper';
+import {getDateOrder, limitData, orderData} from '../Utils/helper';
 // import Carousel from '../Components/Carousel/Component/Carousel'
 // import {dummyData} from '../Components/Carousel/data/data'
 
@@ -120,7 +120,7 @@ export default class Beranda extends Component {
                 <PesananAktif
                   title={item.merk}
                   status={item.status}
-                  date={item.noOrder}
+                  date={getDateOrder(item.tanggalPesan, '/')}
                   onPress={() =>
                     navigation.navigate('PesananDetail', {
                       uid_penyedia: item.uid_penyedia,

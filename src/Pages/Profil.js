@@ -164,6 +164,17 @@ export default class Profil extends Component {
                 </ListItem>
               </TouchableOpacity>
 
+              <TouchableOpacity
+                onPress={() => navigation.navigate('UbahPassword')}>
+                <ListItem>
+                  <Icon name="key" type="antdesign" color="red" />
+                  <ListItem.Content>
+                    <ListItem.Title>Ubah Kata Sandi</ListItem.Title>
+                  </ListItem.Content>
+                  <ListItem.Chevron />
+                </ListItem>
+              </TouchableOpacity>
+
               <TouchableOpacity onPress={() => logout()}>
                 <ListItem>
                   <Icon name="logout" type="antdesign" color="red" />

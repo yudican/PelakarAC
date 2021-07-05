@@ -24,6 +24,7 @@ import BatalkanPesanan from '../../Pages/BatalkanPesanan';
 import TulisUlasan from '../../Pages/TulisUlasan';
 import Komplain from '../../Pages/Komplain';
 import Notifikasi from '../../Pages/Notifikasi';
+import UbahPassword from '../../Pages/UpdatePassword';
 
 const Stack = createStackNavigator();
 const Tab = createMaterialBottomTabNavigator();
@@ -108,6 +109,11 @@ const AppStack = () => {
       <Stack.Screen
         name="Notifikasi"
         component={Notifikasi}
+        options={{header: () => null}}
+      />
+      <Stack.Screen
+        name="UbahPassword"
+        component={UbahPassword}
         options={{header: () => null}}
       />
     </Stack.Navigator>

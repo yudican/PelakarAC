@@ -178,7 +178,7 @@ export default class UbahProfil extends Component {
           }}
           backgroundColor="#5D89F7"
           leftComponent={
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
               <Ionicons name="arrow-back" color="#fff" size={20} />
             </TouchableOpacity>
           }
