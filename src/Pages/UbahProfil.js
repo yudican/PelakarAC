@@ -82,7 +82,7 @@ export default class UbahProfil extends Component {
     await this.firebaseRef
       .ref('Pengguna/Pelanggan/' + this.context.auth.user.uid)
       .on('value', (snapshot) => {
-        const {nama, alamat, no_telp, provinsi, kota, spanduk, profile_photo} =
+        const {nama, alamat, no_telp, provinsi, kota, profile_photo} =
           snapshot.val() || {};
         this.setState((prevState) => ({
           ...prevState,
@@ -91,7 +91,6 @@ export default class UbahProfil extends Component {
           no_telp,
           provinsi,
           kota,
-          spanduk,
           profile_photo,
         }));
       });
@@ -138,15 +137,7 @@ export default class UbahProfil extends Component {
   };
 
   handleUpdateProfile = async () => {
-    const {
-      nama,
-      alamat,
-      no_telp,
-      provinsi,
-      kota,
-      spanduk,
-      profile_photo,
-    } = this.state;
+    const {nama, alamat, no_telp, provinsi, kota, profile_photo} = this.state;
     const {uid} = this.context.auth.user;
     const {updateProfile} = this.context.app;
 
@@ -156,7 +147,6 @@ export default class UbahProfil extends Component {
       no_telp,
       provinsi,
       kota,
-      spanduk,
       profile_photo,
     };
 

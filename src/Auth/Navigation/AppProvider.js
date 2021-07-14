@@ -12,24 +12,20 @@ export const AppProvider = ({children}) => {
     <AppContext.Provider
       value={{
         updateProfile: async (data, userUid, navigation) => {
-          try {
-            await db.app
-              .database()
-              .ref('Pengguna/Pelanggan/' + userUid)
-              .update(data)
-              .then((data) => {
-                ToastAndroid.showWithGravityAndOffset(
-                  'Profile Berhasil Diupdate',
-                  ToastAndroid.LONG,
-                  ToastAndroid.BOTTOM,
-                  25,
-                  50,
-                );
-                navigation.navigate('Home', {screen: 'Profil'});
-              });
-          } catch (e) {
-            Alert.alert('Error', 'Terjadi Kesalahan');
-          }
+          await db.app
+            .database()
+            .ref('Pengguna/Pelanggan/' + userUid)
+            .update(data)
+            .then((data) => {
+              ToastAndroid.showWithGravityAndOffset(
+                'Profile Berhasil Diupdate',
+                ToastAndroid.LONG,
+                ToastAndroid.BOTTOM,
+                25,
+                50,
+              );
+              navigation.navigate('Home', {screen: 'Profil'});
+            });
         },
         updateSpanduk: async (data, userUid) => {
           try {

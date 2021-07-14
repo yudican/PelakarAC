@@ -48,10 +48,10 @@ export default class ListJasaTerdekat extends Component {
       .ref('/Pengguna/Penyedia_Jasa')
       .on('value', (querySnapShot) => {
         let data = querySnapShot.val();
-        const dataKey = Object.keys(querySnapShot.val());
-        const dataValue = Object.values(querySnapShot.val());
 
         if (data) {
+          const dataKey = Object.keys(querySnapShot.val());
+          const dataValue = Object.values(querySnapShot.val());
           let newData = [];
           dataValue.map((item, i) => {
             if (item.Data_Jasa) {
@@ -166,12 +166,12 @@ export default class ListJasaTerdekat extends Component {
                           </Text>
                         </TouchableOpacity>
                       </View>
-                      <Card.Divider></Card.Divider>
+                      <Card.Divider />
                       {Object.keys(item.Data_Jasa).length > 0 ? (
                         Object.keys(item.Data_Jasa).map((dataKey) => (
                           <TouchableOpacity>
                             <ListItem bottomDivider>
-                              <ListItem.Title></ListItem.Title>
+                              <ListItem.Title />
                               <ListItem.Content>
                                 <ListItem.Title style={{fontSize: 14}}>
                                   {item.Data_Jasa[dataKey].namaJasa}
